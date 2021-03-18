@@ -23,6 +23,10 @@ public class Product {
         raws.add(raw);
     }
 
+    public void addEmployee(Employee employee) {
+        employees.add(employee);
+    }
+
     public String getName() {
         return name;
     }

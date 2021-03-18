@@ -1,5 +1,6 @@
 package by.nikiter.model;
 
+import by.nikiter.model.entity.Employee;
 import by.nikiter.model.entity.Product;
 import by.nikiter.model.entity.Raw;
 import by.nikiter.util.JsonFileUtil;
@@ -51,6 +52,11 @@ public class Repo {
 
     public void addRawToCurrent(Raw raw) {
         currentProduct.addRaw(raw);
+        JsonFileUtil.saveAllProducts();
+    }
+
+    public void addEmployeeToCurrent(Employee employee) {
+        currentProduct.addEmployee(employee);
         JsonFileUtil.saveAllProducts();
     }
 }
