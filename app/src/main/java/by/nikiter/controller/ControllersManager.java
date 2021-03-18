@@ -7,6 +7,7 @@ public class ControllersManager {
     private MainWindowController mainWindowController = null;
     private AddProductWindowController addProductWindowController = null;
     private AddRawWindowController addRawWindowController = null;
+    private AddEmployeeWindowController addEmployeeWindowController = null;
 
     private ControllersManager() {
 
@@ -48,5 +49,13 @@ public class ControllersManager {
 
     public void setAddRawWindowController(AddRawWindowController addRawWindowController) {
         this.addRawWindowController = addRawWindowController;
+    }
+
+    public AddEmployeeWindowController getAddEmployeeWindowController() {
+        return addEmployeeWindowController;
+    }
+
+    public void setAddEmployeeWindowController(AddEmployeeWindowController addEmployeeWindowController) {
+        this.addEmployeeWindowController = addEmployeeWindowController;
     }
 }

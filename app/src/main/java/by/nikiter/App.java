@@ -1,22 +1,16 @@
 package by.nikiter;
 
-import by.nikiter.controller.ControllersManager;
 import by.nikiter.controller.MainWindowController;
 import by.nikiter.util.PropManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-/**
- * Hello world!
- *
- */
 public class App extends Application {
 
     //todo: make default locale
