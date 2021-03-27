@@ -11,10 +11,9 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.nikiter.controller.MainWindowController">
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.nikiter.controller.MainWindowController">
    <children>
       <MenuBar layoutX="6.0" layoutY="2.0" prefWidth="132.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
@@ -26,7 +25,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <HBox layoutX="148.0" layoutY="51.0" prefHeight="310.0" prefWidth="486.0" spacing="5.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="114.0" AnchorPane.topAnchor="50.0">
+      <HBox fx:id="mainHBox" layoutX="148.0" layoutY="51.0" prefHeight="310.0" prefWidth="556.0" spacing="5.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="114.0" AnchorPane.topAnchor="50.0">
          <children>
             <VBox alignment="TOP_CENTER" spacing="5.0">
                <children>
@@ -59,7 +58,6 @@
                   <Insets />
                </HBox.margin>
             </VBox>
-            <StackPane fx:id="tablesStackPane" />
          </children>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

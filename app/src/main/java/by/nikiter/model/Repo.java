@@ -9,13 +9,15 @@ import javafx.collections.ObservableList;
 public class Repo {
 
     private final ObservableList<Product> products;
-    private Product currentProduct;
+    private Product currentProduct = null;
 
     private static volatile Repo instance = null;
 
     private Repo() {
         products = FXCollections.observableList(JsonFileUtil.getAllProducts());
-        currentProduct = products.get(0);
+        if (products.size() > 0) {
+            currentProduct = products.get(0);
+        }
     }
 
     public static Repo getInstance() {
@@ -39,6 +41,14 @@ public class Repo {
     public void addProduct(Product product) {
         products.add(product);
         JsonFileUtil.saveAllProducts();
+    }
+
+    public void deleteProduct(Product product) {
+        products.remove(product);
+        JsonFileUtil.saveAllProducts();
+        if (products.size() > 0) {
+            currentProduct = products.get(0);
+        }
     }
 
     public void setCurrentProduct(Product product) {

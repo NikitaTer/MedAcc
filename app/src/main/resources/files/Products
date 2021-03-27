@@ -1,2 +1,1 @@
-{"name":"Первый продукт","unit":"PIECE","quantity":100,"raws":[{"name":"Первое сырьё","cost":21.0,"quantity":3,"unit":"LITER"},{"name":"Второе сырьё","cost":26.33,"quantity":255,"unit":"GRAM"},{"name":"Третье сырьё","cost":27.33,"quantity":6,"unit":"KILOGRAM"}],"employees":[]}
-{"name":"Второй продукт","unit":"KILOGRAM","quantity":25,"raws":[],"employees":[]}
+{"name":"Первый продукт","unit":"PIECE","quantity":100,"raws":[{"name":"Первое сырьё","cost":21.0,"quantity":3,"unit":"LITER"},{"name":"Второе сырьё","cost":26.33,"quantity":255,"unit":"GRAM"},{"name":"Третье сырьё","cost":27.33,"quantity":6,"unit":"KILOGRAM"},{"name":"asd","cost":12.2,"quantity":4,"unit":"PIECE"}],"salary":0.0,"cost":0.0}
