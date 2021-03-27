@@ -1,6 +1,5 @@
 package by.nikiter.model;
 
-import by.nikiter.model.entity.Employee;
 import by.nikiter.model.entity.Product;
 import by.nikiter.model.entity.Raw;
 import by.nikiter.util.JsonFileUtil;
@@ -10,13 +9,15 @@ import javafx.collections.ObservableList;
 public class Repo {
 
     private final ObservableList<Product> products;
-    private Product currentProduct;
+    private Product currentProduct = null;
 
     private static volatile Repo instance = null;
 
     private Repo() {
         products = FXCollections.observableList(JsonFileUtil.getAllProducts());
-        currentProduct = products.get(0);
+        if (products.size() > 0) {
+            currentProduct = products.get(0);
+        }
     }
 
     public static Repo getInstance() {
@@ -42,6 +43,14 @@ public class Repo {
         JsonFileUtil.saveAllProducts();
     }
 
+    public void deleteProduct(Product product) {
+        products.remove(product);
+        JsonFileUtil.saveAllProducts();
+        if (products.size() > 0) {
+            currentProduct = products.get(0);
+        }
+    }
+
     public void setCurrentProduct(Product product) {
         currentProduct = product;
     }
@@ -52,11 +61,6 @@ public class Repo {
 
     public void addRawToCurrent(Raw raw) {
         currentProduct.addRaw(raw);
-        JsonFileUtil.saveAllProducts();
-    }
-
-    public void addEmployeeToCurrent(Employee employee) {
-        currentProduct.addEmployee(employee);
         JsonFileUtil.saveAllProducts();
     }
 }

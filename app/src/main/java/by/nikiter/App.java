@@ -24,8 +24,8 @@ public class App extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         primaryStage.setTitle(PropManager.getLabel("app_name"));
-        primaryStage.setMinWidth(600);
-        primaryStage.setMinHeight(400);
+        primaryStage.setMinWidth(950);
+        primaryStage.setMinHeight(650);
 
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/view/MainWindow.fxml"),
@@ -36,6 +36,7 @@ public class App extends Application {
         ((MainWindowController)loader.getController()).setStage(primaryStage);
 
         primaryStage.setScene(new Scene(root));
+        root.getStylesheets().add("styles/style.css");
         primaryStage.show();
     }
 

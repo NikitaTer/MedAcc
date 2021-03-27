@@ -55,12 +55,16 @@ public class AddProductWindowController implements Initializable {
     }
 
     private boolean addProduct() {
+        productNameField.getStyleClass().remove("error");
+        quantityField.getStyleClass().remove("error");
+
         String prodName = productNameField.getText().trim().replaceAll(Regexp.DOUBLE_SPACE, " ");
         String prodQuantity = quantityField.getText().trim();
 
         if (prodName.isEmpty()) {
             errorLabel.setText(PropManager.getLabel("add_pd.error.empty_text"));
             errorLabel.setVisible(true);
+            productNameField.getStyleClass().add("error");
             return false;
         }
 
@@ -68,6 +72,7 @@ public class AddProductWindowController implements Initializable {
             if (product.getName().equals(prodName)) {
                 errorLabel.setText(PropManager.getLabel("add_pd.error.dup_prod"));
                 errorLabel.setVisible(true);
+                productNameField.getStyleClass().add("error");
                 return false;
             }
         }
@@ -75,6 +80,7 @@ public class AddProductWindowController implements Initializable {
         if (!prodQuantity.matches(Regexp.DECIMAL)) {
             errorLabel.setText(PropManager.getLabel("add_pd.error.wrong_format"));
             errorLabel.setVisible(true);
+            quantityField.getStyleClass().add("error");
             return false;
         }
 

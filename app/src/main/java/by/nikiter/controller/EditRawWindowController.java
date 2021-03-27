@@ -3,6 +3,7 @@ package by.nikiter.controller;
 import by.nikiter.model.Repo;
 import by.nikiter.model.Unit;
 import by.nikiter.model.entity.Raw;
+import by.nikiter.util.JsonFileUtil;
 import by.nikiter.util.PropManager;
 import by.nikiter.util.Regexp;
 import javafx.collections.FXCollections;
@@ -17,9 +18,11 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class AddRawWindowController implements Initializable {
+//todo: EditRawWindowController
+public class EditRawWindowController implements Initializable {
 
     private Stage stage;
+    private Raw raw;
 
     @FXML
     private TextField rawNameField;
@@ -37,17 +40,19 @@ public class AddRawWindowController implements Initializable {
     private Label errorLabel;
 
     @FXML
-    private Button addButton;
+    private Button editButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ControllersManager.getInstance().setAddRawWindowController(this);
+
+        ControllersManager.getInstance().setEditRawWindowController(this);
 
         unitBox.setItems(FXCollections.observableArrayList(Unit.values()));
         unitBox.setValue(Unit.PIECE);
 
-        addButton.setOnAction(event -> {
-            if (addRaw()) {
+        editButton.setOnAction(event -> {
+            if (editRaw()) {
+                JsonFileUtil.saveAllProducts();
                 ControllersManager.getInstance().getMainWindowController().updateCurrentGrid();
                 stage.close();
             }
@@ -57,10 +62,19 @@ public class AddRawWindowController implements Initializable {
     public void setStage(Stage stage) {
         this.stage = stage;
 
-        stage.setOnCloseRequest(e -> ControllersManager.getInstance().setAddRawWindowController(null));
+        stage.setOnCloseRequest(event -> ControllersManager.getInstance().setEditRawWindowController(null));
     }
 
-    private boolean addRaw() {
+    public void setRaw(Raw raw) {
+        this.raw = raw;
+
+        rawNameField.setText(raw.getName());
+        costField.setText(String.valueOf(raw.getCost()));
+        quantityField.setText(String.valueOf(raw.getQuantity()));
+        unitBox.setValue(raw.getUnit());
+    }
+
+    private boolean editRaw() {
         rawNameField.getStyleClass().remove("error");
         quantityField.getStyleClass().remove("error");
         costField.getStyleClass().remove("error");
@@ -76,8 +90,8 @@ public class AddRawWindowController implements Initializable {
             return false;
         }
 
-        for (Raw raw : Repo.getInstance().getCurrentProduct().getRaws()) {
-            if (raw.getName().equals(rawName)) {
+        for (Raw r : Repo.getInstance().getCurrentProduct().getRaws()) {
+            if (r.getName().equals(rawName) && r != raw) {
                 errorLabel.setText(PropManager.getLabel("add_raw.error.dup_raw"));
                 errorLabel.setVisible(true);
                 rawNameField.getStyleClass().add("error");
@@ -101,8 +115,10 @@ public class AddRawWindowController implements Initializable {
             rawCost = rawCost + ".0";
         }
 
-        Raw raw = new Raw(rawName,Double.parseDouble(rawCost),Integer.parseInt(rawQuantity),unitBox.getValue());
-        Repo.getInstance().addRawToCurrent(raw);
+        raw.setName(rawName);
+        raw.setCost(Double.parseDouble(rawCost));
+        raw.setQuantity(Integer.parseInt(rawQuantity));
+        raw.setUnit(unitBox.getValue());
 
         return true;
     }

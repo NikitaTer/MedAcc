@@ -3,10 +3,8 @@ package by.nikiter.util;
 import by.nikiter.model.Currency;
 import by.nikiter.model.Repo;
 import by.nikiter.model.Unit;
-import by.nikiter.model.entity.Employee;
 import by.nikiter.model.entity.Product;
 import by.nikiter.model.entity.Raw;
-import by.nikiter.model.entity.Salary;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -26,7 +24,6 @@ public class JsonFileUtil {
         product.addRaw(new Raw("Первое сырьё",21.0,3,Unit.LITER));
         product.addRaw(new Raw("Второе сырьё",26.33,255,Unit.GRAM));
         product.addRaw(new Raw("Третье сырьё",27.33,6,Unit.KILOGRAM));
-        product.addEmployee(new Employee("Аркадий","Директор", new Salary(23.1, Currency.BYN)));
 
         Product product1 = new Product("Второй продукт", Unit.KILOGRAM, 25);
 
