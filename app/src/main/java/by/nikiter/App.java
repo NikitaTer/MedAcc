@@ -14,7 +14,6 @@ import java.util.ResourceBundle;
 
 public class App extends Application {
 
-    //todo: make default locale
     private static volatile Locale locale = Locale.forLanguageTag("ru");
 
     public static void main( String[] args ) {

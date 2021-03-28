@@ -12,6 +12,7 @@ import by.nikiter.util.JsonFileUtil;
 import by.nikiter.util.PropManager;
 import by.nikiter.util.Regexp;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -41,9 +42,6 @@ public class MainWindowController implements Initializable {
     private final ProductGridMap productGrids = new ProductGridMap();
 
     @FXML
-    private Menu langMenu;
-
-    @FXML
     private MenuItem closeMenuItem;
 
     @FXML
@@ -61,11 +59,15 @@ public class MainWindowController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ControllersManager.getInstance().setMainWindowController(this);
-        //todo: languages init
 
         prodListView.setItems(Repo.getInstance().getProducts());
         prodListView.setCellFactory(tv -> {
             ListCell<Product> cell = new ListCell<>();
+            cell.textProperty().bind(
+                    Bindings.when(cell.emptyProperty())
+                            .then("")
+                            .otherwise(Bindings.format("%s", cell.itemProperty()))
+            );
 
             MenuItem edit = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.edit"));
             edit.setOnAction(event -> {
@@ -78,6 +80,15 @@ public class MainWindowController implements Initializable {
             delete.setOnAction(event -> {
                 if (!cell.isEmpty()) {
                     deleteProduct(cell.getItem());
+                }
+            });
+
+            ContextMenu contextMenu = new ContextMenu(edit,delete);
+            cell.setContextMenu(contextMenu);
+
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                    openEditProductWindow(cell.getItem());
                 }
             });
 
@@ -106,6 +117,13 @@ public class MainWindowController implements Initializable {
 
     private void buildGrid(Product product) {
 
+        if (product == null) {
+            if (mainHBox.getChildren().size() > 1 && mainHBox.getChildren().get(1) instanceof ProductGridPane) {
+                mainHBox.getChildren().remove(1);
+            }
+            return;
+        }
+
         if (productGrids.get(product) != null) {
             showGrid(productGrids.get(product));
             return;
@@ -119,10 +137,13 @@ public class MainWindowController implements Initializable {
 
         Label productNameLabel = new Label(product.getName());
         productNameLabel.setFont(Font.font(14));
+        gridPane.setProductNameLabel(productNameLabel);
         Label productQuantityLabel = new Label(Integer.toString(product.getQuantity()));
         productQuantityLabel.setFont(Font.font(14));
+        gridPane.setProductQuantityLabel(productQuantityLabel);
         Label productUnitLabel = new Label(product.getUnit().getNameShort());
         productUnitLabel.setFont(Font.font(14));
+        gridPane.setProductUnitLabel(productUnitLabel);
         HBox nameBox = new HBox(5, productNameLabel, productQuantityLabel, productUnitLabel);
 
         Node rawNode = buildRawNode(product);
@@ -299,6 +320,12 @@ public class MainWindowController implements Initializable {
         Product product = Repo.getInstance().getCurrentProduct();
         ProductGridPane gridPane = productGrids.get(product);
 
+        prodListView.refresh();
+
+        gridPane.getProductNameLabel().setText(product.getName());
+        gridPane.getProductQuantityLabel().setText(String.valueOf(product.getQuantity()));
+        gridPane.getProductUnitLabel().setText(product.getUnit().getNameShort());
+
         gridPane.getRawTable().setItems(FXCollections.observableArrayList(product.getRaws()));
         gridPane.getRawTable().refresh();
 
@@ -474,6 +501,7 @@ public class MainWindowController implements Initializable {
         try {
             Parent root = loader.load();
             ((EditProductWindowController)loader.getController()).setStage(editProductStage);
+            ((EditProductWindowController)loader.getController()).setProduct(product);
 
             editProductStage.setScene(new Scene(root));
             editProductStage.initModality(Modality.WINDOW_MODAL);

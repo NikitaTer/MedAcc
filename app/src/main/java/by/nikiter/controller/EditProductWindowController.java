@@ -3,6 +3,7 @@ package by.nikiter.controller;
 import by.nikiter.model.Repo;
 import by.nikiter.model.Unit;
 import by.nikiter.model.entity.Product;
+import by.nikiter.util.JsonFileUtil;
 import by.nikiter.util.PropManager;
 import by.nikiter.util.Regexp;
 import javafx.collections.FXCollections;
@@ -46,6 +47,8 @@ public class EditProductWindowController implements Initializable {
 
         editButton.setOnAction(e -> {
             if (editProduct()) {
+                JsonFileUtil.saveAllProducts();
+                ControllersManager.getInstance().getMainWindowController().updateCurrentGrid(false);
                 stage.close();
             }
         });
@@ -56,6 +59,14 @@ public class EditProductWindowController implements Initializable {
         this.stage = stage;
 
         stage.setOnCloseRequest(event -> ControllersManager.getInstance().setEditProductWindowController(null));
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+
+        productNameField.setText(product.getName());
+        quantityField.setText(String.valueOf(product.getQuantity()));
+        unitBox.setValue(product.getUnit());
     }
 
     private boolean editProduct() {
@@ -88,8 +99,9 @@ public class EditProductWindowController implements Initializable {
             return false;
         }
 
-        Product product = new Product(prodName, unitBox.getValue(), Integer.parseInt(prodQuantity));
-        Repo.getInstance().addProduct(product);
+        product.setName(prodName);
+        product.setUnit(unitBox.getValue());
+        product.setQuantity(Integer.parseInt(prodQuantity));
         return true;
     }
 }

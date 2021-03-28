@@ -1,6 +1,6 @@
 package by.nikiter.model.entity;
 
-import by.nikiter.model.entity.Raw;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -9,6 +9,10 @@ import javafx.scene.layout.GridPane;
 public class ProductGridPane extends GridPane {
 
     private TableView<Raw> rawTable = null;
+
+    private Label productNameLabel = null;
+    private Label productQuantityLabel = null;
+    private Label productUnitLabel = null;
 
     private TextField salaryField = null;
 
@@ -100,6 +104,30 @@ public class ProductGridPane extends GridPane {
 
     public void setProductCostRadio(RadioButton productCostRadio) {
         this.productCostRadio = productCostRadio;
+    }
+
+    public Label getProductNameLabel() {
+        return productNameLabel;
+    }
+
+    public void setProductNameLabel(Label productNameLabel) {
+        this.productNameLabel = productNameLabel;
+    }
+
+    public Label getProductQuantityLabel() {
+        return productQuantityLabel;
+    }
+
+    public void setProductQuantityLabel(Label productQuantityLabel) {
+        this.productQuantityLabel = productQuantityLabel;
+    }
+
+    public Label getProductUnitLabel() {
+        return productUnitLabel;
+    }
+
+    public void setProductUnitLabel(Label productUnitLabel) {
+        this.productUnitLabel = productUnitLabel;
     }
 
     @Override

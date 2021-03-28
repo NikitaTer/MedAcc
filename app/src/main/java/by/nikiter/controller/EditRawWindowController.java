@@ -18,7 +18,6 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-//todo: EditRawWindowController
 public class EditRawWindowController implements Initializable {
 
     private Stage stage;

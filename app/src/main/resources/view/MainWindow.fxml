@@ -19,7 +19,6 @@
         <menus>
           <Menu mnemonicParsing="false" text="%main.menu_bar.settings">
             <items>
-                  <Menu fx:id="langMenu" mnemonicParsing="false" text="%main.menu_bar.settings.change_language" />
               <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="%main.menu_bar.settings.close" />
             </items>
           </Menu>
