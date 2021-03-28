@@ -8,7 +8,9 @@ import by.nikiter.model.entity.Product;
 import by.nikiter.model.entity.Raw;
 import by.nikiter.model.format.CellFormatter;
 import by.nikiter.util.CalcUtil;
+import by.nikiter.util.JsonFileUtil;
 import by.nikiter.util.PropManager;
+import by.nikiter.util.Regexp;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -21,7 +23,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -60,6 +64,25 @@ public class MainWindowController implements Initializable {
         //todo: languages init
 
         prodListView.setItems(Repo.getInstance().getProducts());
+        prodListView.setCellFactory(tv -> {
+            ListCell<Product> cell = new ListCell<>();
+
+            MenuItem edit = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.edit"));
+            edit.setOnAction(event -> {
+                if (!cell.isEmpty()) {
+                    openEditProductWindow(cell.getItem());
+                }
+            });
+
+            MenuItem delete = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.delete"));
+            delete.setOnAction(event -> {
+                if (!cell.isEmpty()) {
+                    deleteProduct(cell.getItem());
+                }
+            });
+
+            return cell;
+        });
         if (Repo.getInstance().getCurrentProduct() != null) {
             prodListView.getSelectionModel().select(Repo.getInstance().getCurrentProduct());
             buildGrid(Repo.getInstance().getCurrentProduct());
@@ -105,6 +128,7 @@ public class MainWindowController implements Initializable {
         Node rawNode = buildRawNode(product);
         Node salaryNode = buildSalaryNode(product);
         Node calcNode = buildCalcNode(product);
+        Node buttonsNode = buildButtonsNode(product);
 
         VBox vBox = new VBox(5, nameBox, rawNode);
         GridPane.setHgrow(vBox, Priority.ALWAYS);
@@ -112,6 +136,7 @@ public class MainWindowController implements Initializable {
         gridPane.add(vBox, 0, 0);
         gridPane.add(salaryNode, 0, 1);
         gridPane.add(calcNode, 1,0);
+        gridPane.add(buttonsNode,1,1);
         showGrid(gridPane);
     }
 
@@ -132,6 +157,24 @@ public class MainWindowController implements Initializable {
 
         rawTable.setRowFactory(tv -> {
             TableRow<Raw> row = new TableRow<>();
+
+            MenuItem edit = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.edit"));
+            edit.setOnAction(event -> {
+                if (!row.isEmpty()) {
+                    openEditRawWindow(row.getItem());
+                }
+            });
+
+            MenuItem delete = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.delete"));
+            delete.setOnAction(event -> {
+                if (!row.isEmpty()) {
+                    deleteRaw(product,row.getItem());
+                }
+            });
+
+            ContextMenu contextMenu = new ContextMenu(edit,delete);
+
+            row.setContextMenu(contextMenu);
             row.setOnMouseClicked(e -> {
                 if (e.getClickCount() == 2 && !row.isEmpty()) {
                     openEditRawWindow(row.getItem());
@@ -197,6 +240,10 @@ public class MainWindowController implements Initializable {
         RadioButton productCostRadio = new RadioButton();
         productCostRadio.setSelected(true);
 
+        productGrids.get(product).setProfitPercentRadio(profitPercentRadio);
+        productGrids.get(product).setProfitNumberRadio(profitNumberRadio);
+        productGrids.get(product).setProductCostRadio(productCostRadio);
+
         ToggleGroup toggleGroup = new ToggleGroup();
         profitPercentRadio.setToggleGroup(toggleGroup);
         profitNumberRadio.setToggleGroup(toggleGroup);
@@ -221,6 +268,26 @@ public class MainWindowController implements Initializable {
         return gridPane;
     }
 
+    private Node buildButtonsNode(Product product) {
+        Button calcButton = new Button(PropManager.getLabel("main.calc_button"));
+
+        Label errorLabel = new Label("");
+        errorLabel.setTextFill(Paint.valueOf("RED"));
+        errorLabel.setVisible(false);
+        errorLabel.setAlignment(Pos.CENTER);
+
+        calcButton.setOnAction(event -> {
+            if (isFieldsValid(product,errorLabel)) {
+                updateCurrentGrid(true);
+            }
+        });
+
+        VBox vBox = new VBox(5, calcButton, errorLabel);
+        vBox.setAlignment(Pos.CENTER);
+
+        return vBox;
+    }
+
     private void showGrid(ProductGridPane gridPane) {
         if (mainHBox.getChildren().size() > 1 && mainHBox.getChildren().get(1) instanceof ProductGridPane) {
             mainHBox.getChildren().remove(1);
@@ -228,25 +295,52 @@ public class MainWindowController implements Initializable {
         mainHBox.getChildren().add(1,gridPane);
     }
 
-    public void updateCurrentGrid() {
+    public void updateCurrentGrid(boolean updateSalary) {
         Product product = Repo.getInstance().getCurrentProduct();
         ProductGridPane gridPane = productGrids.get(product);
 
         gridPane.getRawTable().setItems(FXCollections.observableArrayList(product.getRaws()));
         gridPane.getRawTable().refresh();
 
-        gridPane.getSalaryField().setText(String.valueOf(product.getSalary()));
+        if (updateSalary) {
+            product.setSalary(Double.parseDouble(gridPane.getSalaryField().getText()));
+            gridPane.getSalaryField().setText(String.format(Locale.US,"%.2f", product.getSalary()));
+        }
 
-        gridPane.getRawsCostField().setText(String.valueOf(CalcUtil.calcRawsCost(product)));
-        gridPane.getTotalCostField().setText(String.valueOf(CalcUtil.calcTotalCost(product)));
-        gridPane.getProfitPercentField().setText(String.valueOf(CalcUtil.calcProfitPercent(product)));
-        gridPane.getProfitNumberField().setText(String.valueOf(CalcUtil.calcProfitNumber(product)));
-        gridPane.getProductCostField().setText(String.valueOf(product.getCost()));
+        gridPane.getRawsCostField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcRawsCost(product)));
+        gridPane.getTotalCostField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcTotalCost(product)));
+
+        if (gridPane.getProfitPercentRadio().isSelected()) {
+            product.setCost(CalcUtil.calcCostByProfitPercent(
+                    product,
+                    Double.parseDouble(gridPane.getProfitPercentField().getText())
+            ));
+            JsonFileUtil.saveAllProducts();
+
+            gridPane.getProfitPercentField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitPercent(product)));
+            gridPane.getProfitNumberField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitNumber(product)));
+            gridPane.getProductCostField().setText(String.format(Locale.US,"%.2f",product.getCost()));
+        } else if (gridPane.getProfitNumberRadio().isSelected()) {
+            product.setCost(CalcUtil.calcCostByProfitNumber(
+                    product,
+                    Double.parseDouble(gridPane.getProfitNumberField().getText())
+            ));
+            JsonFileUtil.saveAllProducts();
+
+            gridPane.getProfitPercentField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitPercent(product)));
+            gridPane.getProfitNumberField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitNumber(product)));
+            gridPane.getProductCostField().setText(String.format(Locale.US,"%.2f",product.getCost()));
+        } else {
+            gridPane.getProfitPercentField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitPercent(product)));
+            gridPane.getProfitNumberField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitNumber(product)));
+            gridPane.getProductCostField().setText(String.format(Locale.US,"%.2f",product.getCost()));
+        }
     }
 
     private void openAddProductWindow() {
         Stage addProductStage = new Stage();
         addProductStage.setTitle(PropManager.getLabel("add_pd.name"));
+        addProductStage.getIcons().add(new Image("images/logo.png"));
 
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/view/AddProductWindow.fxml"),
@@ -275,15 +369,14 @@ public class MainWindowController implements Initializable {
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(PropManager.getLabel("main.alert.delete.title"));
-        alert.setHeaderText(PropManager.getLabel("main.alert.delete.body"));
+        alert.setTitle(PropManager.getLabel("main.alert.delete.product.title"));
+        alert.setHeaderText(PropManager.getLabel("main.alert.delete.product.body"));
         alert.setContentText(null);
 
-        ButtonType yesButton = new ButtonType(PropManager.getLabel("main.alert.delete.yes"), ButtonBar.ButtonData.YES);
-        ButtonType noButton = new ButtonType(PropManager.getLabel("main.alert.delete.no"), ButtonBar.ButtonData.NO);
+        ButtonType yesButton = new ButtonType(PropManager.getLabel("main.alert.delete.product.yes"), ButtonBar.ButtonData.YES);
+        ButtonType noButton = new ButtonType(PropManager.getLabel("main.alert.delete.product.no"), ButtonBar.ButtonData.NO);
 
         alert.getButtonTypes().setAll(yesButton,noButton);
-
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == yesButton) {
             Repo.getInstance().deleteProduct(product);
@@ -291,9 +384,33 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    private void deleteRaw(Product product, Raw raw) {
+        if (product == null || raw == null) {
+            return;
+        }
+
+        Alert alert= new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(PropManager.getLabel("main.alert.delete.raw.title"));
+        alert.setHeaderText(PropManager.getLabel("main.alert.delete.raw.body"));
+        alert.setContentText(null);
+
+        ButtonType yesButton = new ButtonType(PropManager.getLabel("main.alert.delete.raw.yes"), ButtonBar.ButtonData.YES);
+        ButtonType noButton = new ButtonType(PropManager.getLabel("main.alert.delete.raw.no"), ButtonBar.ButtonData.NO);
+
+        alert.getButtonTypes().setAll(yesButton,noButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == yesButton) {
+            product.deleteRaw(raw);
+            JsonFileUtil.saveAllProducts();
+            updateCurrentGrid(false);
+        }
+    }
+
     private void openAddRawWindow() {
         Stage addRawStage = new Stage();
         addRawStage.setTitle(PropManager.getLabel("add_raw.name"));
+        addRawStage.getIcons().add(new Image("images/logo.png"));
 
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/view/AddRawWindow.fxml"),
@@ -319,6 +436,7 @@ public class MainWindowController implements Initializable {
     private void openEditRawWindow(Raw raw) {
         Stage editRawStage = new Stage();
         editRawStage.setTitle(PropManager.getLabel("edit_raw.name"));
+        editRawStage.getIcons().add(new Image("images/logo.png"));
 
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/view/EditRawWindow.fxml"),
@@ -341,5 +459,86 @@ public class MainWindowController implements Initializable {
             e.printStackTrace();
         }
 
+    }
+
+    private void openEditProductWindow(Product product) {
+        Stage editProductStage = new Stage();
+        editProductStage.setTitle(PropManager.getLabel("edit_prod.name"));
+        editProductStage.getIcons().add(new Image("images/logo.png"));
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/EditProductWindow.fxml"),
+                ResourceBundle.getBundle("labels")
+        );
+
+        try {
+            Parent root = loader.load();
+            ((EditProductWindowController)loader.getController()).setStage(editProductStage);
+
+            editProductStage.setScene(new Scene(root));
+            editProductStage.initModality(Modality.WINDOW_MODAL);
+            editProductStage.initOwner(stage);
+            editProductStage.setResizable(false);
+            root.getStylesheets().add("styles/style.css");
+            editProductStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //shit-code
+    private boolean isFieldsValid(Product product, Label errorLabel) {
+        ProductGridPane gridPane = productGrids.get(product);
+        boolean isValid = true;
+
+        errorLabel.setVisible(false);
+        gridPane.getSalaryField().getStyleClass().remove("error");
+        gridPane.getProfitPercentField().getStyleClass().remove("error");
+        gridPane.getProfitNumberField().getStyleClass().remove("error");
+        gridPane.getProductCostField().getStyleClass().remove("error");
+
+        String salary = gridPane.getSalaryField().getText().trim();
+        String profitPercent = gridPane.getProfitPercentField().getText().trim();
+        String profitNumber = gridPane.getProfitNumberField().getText().trim();
+        String productCost = gridPane.getProductCostField().getText().trim();
+
+        if (!salary.matches(Regexp.DOUBLE)) {
+            gridPane.getSalaryField().getStyleClass().add("error");
+            isValid = false;
+        } else if (!salary.contains(".")) {
+            gridPane.getSalaryField().setText(salary + ".0");
+        }
+
+        if (!profitPercent.contains(".")) {
+            gridPane.getProfitPercentField().setText(profitPercent + ".0");
+        }
+        if (!profitNumber.contains(".")) {
+            gridPane.getProfitNumberField().setText(profitNumber + ".0");
+        }
+        if (!productCost.contains(".")) {
+            gridPane.getProductCostField().setText(productCost + ".0");
+        }
+
+        if (gridPane.getProfitPercentRadio().isSelected() && !profitPercent.matches(Regexp.DOUBLE)) {
+            gridPane.getProfitPercentField().getStyleClass().add("error");
+            isValid = false;
+        } else if (gridPane.getProfitNumberRadio().isSelected() && !profitNumber.matches(Regexp.DOUBLE)) {
+            gridPane.getProfitNumberField().getStyleClass().add("error");
+            isValid = false;
+        } else if (gridPane.getProductCostRadio().isSelected()) {
+            if (!productCost.matches(Regexp.DOUBLE)) {
+                gridPane.getProductCostField().getStyleClass().add("error");
+                isValid = false;
+            } else {
+                product.setCost(Double.parseDouble(productCost));
+            }
+        }
+
+        if (!isValid) {
+            errorLabel.setText(PropManager.getLabel("main.error.wrong_format"));
+            errorLabel.setVisible(true);
+        }
+        return isValid;
     }
 }

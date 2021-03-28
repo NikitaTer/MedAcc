@@ -8,22 +8,19 @@ import javafx.scene.layout.GridPane;
 
 public class ProductGridPane extends GridPane {
 
-    private boolean shouldUpdate = false;
     private TableView<Raw> rawTable = null;
+
     private TextField salaryField = null;
+
     private TextField rawsCostField = null;
     private TextField totalCostField = null;
     private TextField profitPercentField = null;
     private TextField profitNumberField = null;
     private TextField productCostField = null;
 
-    public boolean shouldUpdate() {
-        return shouldUpdate;
-    }
-
-    public void setShouldUpdate(boolean shouldUpdate) {
-        this.shouldUpdate = shouldUpdate;
-    }
+    private RadioButton profitPercentRadio = null;
+    private RadioButton profitNumberRadio = null;
+    private RadioButton productCostRadio = null;
 
     public TableView<Raw> getRawTable() {
         return rawTable;
@@ -79,6 +76,30 @@ public class ProductGridPane extends GridPane {
 
     public void setProductCostField(TextField productCostField) {
         this.productCostField = productCostField;
+    }
+
+    public RadioButton getProfitPercentRadio() {
+        return profitPercentRadio;
+    }
+
+    public void setProfitPercentRadio(RadioButton profitPercentRadio) {
+        this.profitPercentRadio = profitPercentRadio;
+    }
+
+    public RadioButton getProfitNumberRadio() {
+        return profitNumberRadio;
+    }
+
+    public void setProfitNumberRadio(RadioButton profitNumberRadio) {
+        this.profitNumberRadio = profitNumberRadio;
+    }
+
+    public RadioButton getProductCostRadio() {
+        return productCostRadio;
+    }
+
+    public void setProductCostRadio(RadioButton productCostRadio) {
+        this.productCostRadio = productCostRadio;
     }
 
     @Override

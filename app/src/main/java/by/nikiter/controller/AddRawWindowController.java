@@ -48,7 +48,7 @@ public class AddRawWindowController implements Initializable {
 
         addButton.setOnAction(event -> {
             if (addRaw()) {
-                ControllersManager.getInstance().getMainWindowController().updateCurrentGrid();
+                ControllersManager.getInstance().getMainWindowController().updateCurrentGrid(false);
                 stage.close();
             }
         });

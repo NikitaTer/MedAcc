@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.nikiter.controller.AddRawWindowController">
+<VBox alignment="CENTER" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="by.nikiter.controller.AddRawWindowController">
     <children>
         <TextField fx:id="rawNameField" prefWidth="200.0" promptText="%add_raw.raw_name" />
         <HBox alignment="CENTER_RIGHT" spacing="5.0">

@@ -53,7 +53,7 @@ public class EditRawWindowController implements Initializable {
         editButton.setOnAction(event -> {
             if (editRaw()) {
                 JsonFileUtil.saveAllProducts();
-                ControllersManager.getInstance().getMainWindowController().updateCurrentGrid();
+                ControllersManager.getInstance().getMainWindowController().updateCurrentGrid(false);
                 stage.close();
             }
         });

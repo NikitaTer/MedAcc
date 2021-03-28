@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.util.Locale;
@@ -26,6 +27,7 @@ public class App extends Application {
         primaryStage.setTitle(PropManager.getLabel("app_name"));
         primaryStage.setMinWidth(950);
         primaryStage.setMinHeight(650);
+        primaryStage.getIcons().add(new Image("images/logo.png"));
 
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/view/MainWindow.fxml"),
