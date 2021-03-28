@@ -1,6 +1,6 @@
 package by.nikiter.model.entity;
 
-import by.nikiter.model.entity.Raw;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -8,22 +8,23 @@ import javafx.scene.layout.GridPane;
 
 public class ProductGridPane extends GridPane {
 
-    private boolean shouldUpdate = false;
     private TableView<Raw> rawTable = null;
+
+    private Label productNameLabel = null;
+    private Label productQuantityLabel = null;
+    private Label productUnitLabel = null;
+
     private TextField salaryField = null;
+
     private TextField rawsCostField = null;
     private TextField totalCostField = null;
     private TextField profitPercentField = null;
     private TextField profitNumberField = null;
     private TextField productCostField = null;
 
-    public boolean shouldUpdate() {
-        return shouldUpdate;
-    }
-
-    public void setShouldUpdate(boolean shouldUpdate) {
-        this.shouldUpdate = shouldUpdate;
-    }
+    private RadioButton profitPercentRadio = null;
+    private RadioButton profitNumberRadio = null;
+    private RadioButton productCostRadio = null;
 
     public TableView<Raw> getRawTable() {
         return rawTable;
@@ -79,6 +80,54 @@ public class ProductGridPane extends GridPane {
 
     public void setProductCostField(TextField productCostField) {
         this.productCostField = productCostField;
+    }
+
+    public RadioButton getProfitPercentRadio() {
+        return profitPercentRadio;
+    }
+
+    public void setProfitPercentRadio(RadioButton profitPercentRadio) {
+        this.profitPercentRadio = profitPercentRadio;
+    }
+
+    public RadioButton getProfitNumberRadio() {
+        return profitNumberRadio;
+    }
+
+    public void setProfitNumberRadio(RadioButton profitNumberRadio) {
+        this.profitNumberRadio = profitNumberRadio;
+    }
+
+    public RadioButton getProductCostRadio() {
+        return productCostRadio;
+    }
+
+    public void setProductCostRadio(RadioButton productCostRadio) {
+        this.productCostRadio = productCostRadio;
+    }
+
+    public Label getProductNameLabel() {
+        return productNameLabel;
+    }
+
+    public void setProductNameLabel(Label productNameLabel) {
+        this.productNameLabel = productNameLabel;
+    }
+
+    public Label getProductQuantityLabel() {
+        return productQuantityLabel;
+    }
+
+    public void setProductQuantityLabel(Label productQuantityLabel) {
+        this.productQuantityLabel = productQuantityLabel;
+    }
+
+    public Label getProductUnitLabel() {
+        return productUnitLabel;
+    }
+
+    public void setProductUnitLabel(Label productUnitLabel) {
+        this.productUnitLabel = productUnitLabel;
     }
 
     @Override

@@ -24,6 +24,10 @@ public class Product {
         raws.add(raw);
     }
 
+    public void deleteRaw(Raw raw) {
+        raws.remove(raw);
+    }
+
     public String getName() {
         return name;
     }

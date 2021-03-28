@@ -13,13 +13,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.nikiter.controller.MainWindowController">
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="by.nikiter.controller.MainWindowController">
    <children>
       <MenuBar layoutX="6.0" layoutY="2.0" prefWidth="132.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu mnemonicParsing="false" text="%main.menu_bar.settings">
             <items>
-                  <Menu fx:id="langMenu" mnemonicParsing="false" text="%main.menu_bar.settings.change_language" />
               <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="%main.menu_bar.settings.close" />
             </items>
           </Menu>

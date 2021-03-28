@@ -18,7 +18,6 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-//todo: EditRawWindowController
 public class EditRawWindowController implements Initializable {
 
     private Stage stage;
@@ -53,7 +52,7 @@ public class EditRawWindowController implements Initializable {
         editButton.setOnAction(event -> {
             if (editRaw()) {
                 JsonFileUtil.saveAllProducts();
-                ControllersManager.getInstance().getMainWindowController().updateCurrentGrid();
+                ControllersManager.getInstance().getMainWindowController().updateCurrentGrid(false);
                 stage.close();
             }
         });

@@ -8,6 +8,7 @@ public class ControllersManager {
     private AddProductWindowController addProductWindowController = null;
     private AddRawWindowController addRawWindowController = null;
     private EditRawWindowController editRawWindowController = null;
+    private EditProductWindowController editProductWindowController = null;
 
     private ControllersManager() {
 
@@ -57,5 +58,13 @@ public class ControllersManager {
 
     public void setEditRawWindowController(EditRawWindowController editRawWindowController) {
         this.editRawWindowController = editRawWindowController;
+    }
+
+    public EditProductWindowController getEditProductWindowController() {
+        return editProductWindowController;
+    }
+
+    public void setEditProductWindowController(EditProductWindowController editProductWindowController) {
+        this.editProductWindowController = editProductWindowController;
     }
 }
