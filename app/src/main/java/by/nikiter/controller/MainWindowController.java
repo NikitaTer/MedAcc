@@ -12,8 +12,13 @@ import by.nikiter.util.JsonFileUtil;
 import by.nikiter.util.PropManager;
 import by.nikiter.util.Regexp;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -23,7 +28,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
@@ -45,6 +49,12 @@ public class MainWindowController implements Initializable {
     private MenuItem closeMenuItem;
 
     @FXML
+    private MenuItem rawsMenuItem;
+
+    @FXML
+    private TextField searchField;
+
+    @FXML
     private HBox mainHBox;
 
     @FXML
@@ -60,14 +70,33 @@ public class MainWindowController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         ControllersManager.getInstance().setMainWindowController(this);
 
-        prodListView.setItems(Repo.getInstance().getProducts());
+        //product search set up
+        FilteredList<Product> filteredList = new FilteredList<>(Repo.getInstance().getProducts(),p -> true);
+        searchField.textProperty().addListener(((observable, oldValue, newValue) -> {
+            filteredList.setPredicate(product -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                return product.getName().toLowerCase().contains(newValue.toLowerCase());
+            });
+        }));
+        SortedList<Product> sortedList = new SortedList<>(filteredList);
+
+        //product list set up
+        prodListView.setItems(sortedList);
         prodListView.setCellFactory(tv -> {
-            ListCell<Product> cell = new ListCell<>();
-            cell.textProperty().bind(
-                    Bindings.when(cell.emptyProperty())
-                            .then("")
-                            .otherwise(Bindings.format("%s", cell.itemProperty()))
-            );
+            ListCell<Product> cell = new ListCell<Product>() {
+                @Override
+                protected void updateItem(Product item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item != null) {
+                        setText(item.getName());
+                    } else {
+                        setText("");
+                    }
+                }
+            };
 
             MenuItem edit = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.edit"));
             edit.setOnAction(event -> {
@@ -86,14 +115,9 @@ public class MainWindowController implements Initializable {
             ContextMenu contextMenu = new ContextMenu(edit,delete);
             cell.setContextMenu(contextMenu);
 
-            cell.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !cell.isEmpty()) {
-                    openEditProductWindow(cell.getItem());
-                }
-            });
-
             return cell;
         });
+
         if (Repo.getInstance().getCurrentProduct() != null) {
             prodListView.getSelectionModel().select(Repo.getInstance().getCurrentProduct());
             buildGrid(Repo.getInstance().getCurrentProduct());
@@ -107,6 +131,8 @@ public class MainWindowController implements Initializable {
         minusButton.setOnAction(e -> deleteProduct(Repo.getInstance().getCurrentProduct()));
 
         closeMenuItem.setOnAction(e -> Platform.exit());
+
+        rawsMenuItem.setOnAction(event -> openNewRawWindow());
     }
 
     public void setStage(Stage stage) {
@@ -172,12 +198,12 @@ public class MainWindowController implements Initializable {
             openAddRawWindow();
         });
 
-        TableView<Raw> rawTable = new TableView<Raw>(FXCollections.observableList(product.getRaws()));
+        TableView<Map.Entry<Raw, Integer>> rawTable = new TableView<>(FXCollections.observableArrayList(product.getRaws().entrySet()));
         productGrids.get(product).setRawTable(rawTable);
         rawTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         rawTable.setRowFactory(tv -> {
-            TableRow<Raw> row = new TableRow<>();
+            TableRow<Map.Entry<Raw,Integer>> row = new TableRow<>();
 
             MenuItem edit = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.edit"));
             edit.setOnAction(event -> {
@@ -189,7 +215,7 @@ public class MainWindowController implements Initializable {
             MenuItem delete = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.delete"));
             delete.setOnAction(event -> {
                 if (!row.isEmpty()) {
-                    deleteRaw(product,row.getItem());
+                    deleteRawFromProduct(product,row.getItem());
                 }
             });
 
@@ -201,24 +227,25 @@ public class MainWindowController implements Initializable {
                     openEditRawWindow(row.getItem());
                 }
             });
+
             return row;
         });
 
-        TableColumn<Raw,String> nameColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.name"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<Raw,String>("name"));
+        TableColumn<Map.Entry<Raw,Integer>,String> nameColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.name"));
+        nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getKey().getName()));
         rawTable.getColumns().add(nameColumn);
 
-        TableColumn<Raw,Double> costColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.cost"));
-        costColumn.setCellValueFactory(new PropertyValueFactory<Raw,Double>("cost"));
+        TableColumn<Map.Entry<Raw,Integer>,Double> costColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.cost"));
+        costColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getKey().getCost()).asObject());
         costColumn.setCellFactory(CellFormatter.getRawCostFormat());
         rawTable.getColumns().add(costColumn);
 
-        TableColumn<Raw,Integer> quantityColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.quantity"));
-        quantityColumn.setCellValueFactory(new PropertyValueFactory<Raw,Integer>("quantity"));
+        TableColumn<Map.Entry<Raw,Integer>,Integer> quantityColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.quantity"));
+        quantityColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getValue()).asObject());
         rawTable.getColumns().add(quantityColumn);
 
-        TableColumn<Raw,Unit> unitColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.unit"));
-        unitColumn.setCellValueFactory(new PropertyValueFactory<Raw,Unit>("unit"));
+        TableColumn<Map.Entry<Raw,Integer>,Unit> unitColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.unit"));
+        unitColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKey().getUnit()));
         rawTable.getColumns().add(unitColumn);
 
         return new VBox(5, new HBox(20,tableNameLabel,addRawLabel),rawTable);
@@ -326,7 +353,7 @@ public class MainWindowController implements Initializable {
         gridPane.getProductQuantityLabel().setText(String.valueOf(product.getQuantity()));
         gridPane.getProductUnitLabel().setText(product.getUnit().getNameShort());
 
-        gridPane.getRawTable().setItems(FXCollections.observableArrayList(product.getRaws()));
+        gridPane.getRawTable().setItems(FXCollections.observableArrayList(product.getRaws().entrySet()));
         gridPane.getRawTable().refresh();
 
         if (updateSalary) {
@@ -411,27 +438,13 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    private void deleteRaw(Product product, Raw raw) {
+    private void deleteRawFromProduct(Product product, Map.Entry<Raw,Integer> raw) {
         if (product == null || raw == null) {
             return;
         }
 
-        Alert alert= new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(PropManager.getLabel("main.alert.delete.raw.title"));
-        alert.setHeaderText(PropManager.getLabel("main.alert.delete.raw.body"));
-        alert.setContentText(null);
-
-        ButtonType yesButton = new ButtonType(PropManager.getLabel("main.alert.delete.raw.yes"), ButtonBar.ButtonData.YES);
-        ButtonType noButton = new ButtonType(PropManager.getLabel("main.alert.delete.raw.no"), ButtonBar.ButtonData.NO);
-
-        alert.getButtonTypes().setAll(yesButton,noButton);
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == yesButton) {
-            product.deleteRaw(raw);
-            JsonFileUtil.saveAllProducts();
-            updateCurrentGrid(false);
-        }
+        Repo.getInstance().deleteRawFromProduct(product,raw.getKey());
+        updateCurrentGrid(false);
     }
 
     private void openAddRawWindow() {
@@ -460,7 +473,33 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    private void openEditRawWindow(Raw raw) {
+    private void openNewRawWindow() {
+        Stage newRawStage = new Stage();
+        newRawStage.setTitle(PropManager.getLabel("new_raw.title"));
+        newRawStage.getIcons().add(new Image("images/logo.png"));
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/NewRawWindow.fxml"),
+                ResourceBundle.getBundle("labels")
+        );
+
+        try {
+            Parent root = loader.load();
+            ((NewRawWindowController)loader.getController()).setStage(newRawStage);
+
+            newRawStage.setScene(new Scene(root));
+            newRawStage.initModality(Modality.WINDOW_MODAL);
+            newRawStage.initOwner(stage);
+            newRawStage.setResizable(false);
+            root.getStylesheets().add("styles/style.css");
+            newRawStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openEditRawWindow(Map.Entry<Raw,Integer> raw) {
         Stage editRawStage = new Stage();
         editRawStage.setTitle(PropManager.getLabel("edit_raw.name"));
         editRawStage.getIcons().add(new Image("images/logo.png"));
@@ -473,7 +512,7 @@ public class MainWindowController implements Initializable {
         try {
             Parent root = loader.load();
             ((EditRawWindowController)loader.getController()).setStage(editRawStage);
-            ((EditRawWindowController)loader.getController()).setRaw(raw);
+            ((EditRawWindowController)loader.getController()).setProdRaw(Repo.getInstance().getCurrentProduct(),raw);
 
             editRawStage.setScene(new Scene(root));
             editRawStage.initModality(Modality.WINDOW_MODAL);

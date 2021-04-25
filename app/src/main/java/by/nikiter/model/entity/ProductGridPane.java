@@ -6,9 +6,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import java.util.Map;
+
 public class ProductGridPane extends GridPane {
 
-    private TableView<Raw> rawTable = null;
+    private TableView<Map.Entry<Raw,Integer>> rawTable = null;
 
     private Label productNameLabel = null;
     private Label productQuantityLabel = null;
@@ -26,11 +28,11 @@ public class ProductGridPane extends GridPane {
     private RadioButton profitNumberRadio = null;
     private RadioButton productCostRadio = null;
 
-    public TableView<Raw> getRawTable() {
+    public TableView<Map.Entry<Raw,Integer>> getRawTable() {
         return rawTable;
     }
 
-    public void setRawTable(TableView<Raw> rawTable) {
+    public void setRawTable(TableView<Map.Entry<Raw,Integer>> rawTable) {
         this.rawTable = rawTable;
     }
 

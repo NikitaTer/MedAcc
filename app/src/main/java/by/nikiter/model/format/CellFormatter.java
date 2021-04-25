@@ -6,11 +6,12 @@ import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
 
 import java.util.Locale;
+import java.util.Map;
 
 public class CellFormatter {
 
-    public static Callback<TableColumn<Raw, Double>, TableCell<Raw, Double>> getRawCostFormat() {
-        return param -> new TableCell<Raw, Double>() {
+    public static Callback<TableColumn<Map.Entry<Raw,Integer>, Double>, TableCell<Map.Entry<Raw,Integer>, Double>> getRawCostFormat() {
+        return param -> new TableCell<Map.Entry<Raw,Integer>, Double>() {
 
             @Override
             protected void updateItem(Double item, boolean empty) {
