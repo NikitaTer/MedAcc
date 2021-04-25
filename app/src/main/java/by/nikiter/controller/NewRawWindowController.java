@@ -89,7 +89,7 @@ public class NewRawWindowController implements Initializable {
                 protected void updateItem(Raw item, boolean empty) {
                     super.updateItem(item, empty);
                     if (item != null) {
-                        setText(item.getName());
+                        setText(String.format("%s (%s)",item.getName(),item.getUnit().getNameShort()));
                     } else {
                         setText("");
                     }
