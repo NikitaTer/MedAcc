@@ -1,3 +1,6 @@
 .idea/
 out/
 target/
+app/product_raw
+app/Products
+app/Raws
