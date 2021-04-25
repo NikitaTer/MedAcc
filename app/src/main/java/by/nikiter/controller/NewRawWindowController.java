@@ -13,22 +13,20 @@ import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Paint;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class AddRawWindowController implements Initializable {
+public class NewRawWindowController implements Initializable {
 
     private Stage stage;
 
+    private final static double LIST_WIDTH = 465.0;
+    private final static double LIST_HEIGHT = 426.0;
     private final static double ADD_WIDTH = 340.0;
-    private final static double ADD_HEIGHT = 242.0;
-    private final static double CHOOSE_WIDTH = 465.0;
-    private final static double CHOOSE_HEIGHT = 426.0;
+    private final static double ADD_HEIGHT = 222.0;
 
     private Raw editableRaw = null;
 
@@ -42,41 +40,35 @@ public class AddRawWindowController implements Initializable {
     private TextField rawNameField;
 
     @FXML
-    private TextField quantityField;
-
-    @FXML
-    private ComboBox<Unit> unitBox;
-
-    @FXML
     private TextField costField;
 
     @FXML
     private TextField searchField;
 
     @FXML
+    private ComboBox<Unit> unitBox;
+
+    @FXML
     private Label errorLabel;
 
     @FXML
-    private Button addNewButton;
+    private Button addButton;
 
     @FXML
-    private VBox chooseVBox;
+    private VBox listVBox;
 
     @FXML
     private ListView<Raw> rawList;
-
-    @FXML
-    private Button addButton;
 
     @FXML
     private Button newButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ControllersManager.getInstance().setAddRawWindowController(this);
+        ControllersManager.getInstance().setNewRawWindowController(this);
 
         //set up search
-        FilteredList<Raw> filteredList = new FilteredList<>(Repo.getInstance().getRaws(), p -> true);
+        FilteredList<Raw> filteredList = new FilteredList<>(Repo.getInstance().getRaws());
         searchField.textProperty().addListener(((observable, oldValue, newValue) -> {
             filteredList.setPredicate(raw -> {
                 if (newValue == null || newValue.isEmpty()) {
@@ -92,6 +84,7 @@ public class AddRawWindowController implements Initializable {
         rawList.setItems(sortedList);
         rawList.setCellFactory( param -> {
             ListCell<Raw> cell = new ListCell<Raw>() {
+
                 @Override
                 protected void updateItem(Raw item, boolean empty) {
                     super.updateItem(item, empty);
@@ -106,12 +99,12 @@ public class AddRawWindowController implements Initializable {
             MenuItem edit = new MenuItem(PropManager.getLabel("new_raw.context_menu.edit"));
             edit.setOnAction(event -> {
                 if (!cell.isEmpty()) {
-                    chooseVBox.setVisible(false);
-                    stackPane.setPrefSize(ADD_WIDTH, ADD_HEIGHT);
+                    listVBox.setVisible(false);
+                    stackPane.setPrefSize(ADD_WIDTH,ADD_HEIGHT);
                     stage.setWidth(ADD_WIDTH);
                     stage.setHeight(ADD_HEIGHT);
 
-                    addNewButton.setText(PropManager.getLabel("add_raw.edit_button"));
+                    addButton.setText(PropManager.getLabel("add_raw.edit_button"));
                     rawNameField.setText(cell.getItem().getName());
                     costField.setText(String.valueOf(cell.getItem().getCost()));
                     unitBox.setValue(cell.getItem().getUnit());
@@ -139,48 +132,43 @@ public class AddRawWindowController implements Initializable {
         unitBox.setValue(Unit.PIECE);
 
         newButton.setOnAction(event -> {
-            addNewButton.setText(PropManager.getLabel("add_raw.add_button"));
-            chooseVBox.setVisible(false);
-            stackPane.setPrefSize(ADD_WIDTH, ADD_HEIGHT);
+            addButton.setText(PropManager.getLabel("add_raw.add_button"));
+            listVBox.setVisible(false);
+            stackPane.setPrefSize(ADD_WIDTH,ADD_HEIGHT);
             stage.setWidth(ADD_WIDTH);
             stage.setHeight(ADD_HEIGHT);
             addVBox.setVisible(true);
         });
 
-        addNewButton.setOnAction(event -> {
-            if (addNewButton.getText().equals(PropManager.getLabel("add_raw.add_button"))) {
-                if (newRaw()) {
+        addButton.setOnAction(event -> {
+            if (addButton.getText().equals(PropManager.getLabel("add_raw.add_button"))) {
+                if (addRaw()) {
                     addVBox.setVisible(false);
-                    stackPane.setPrefSize(CHOOSE_WIDTH, CHOOSE_HEIGHT);
-                    stage.setWidth(CHOOSE_WIDTH);
-                    stage.setHeight(CHOOSE_HEIGHT);
-                    chooseVBox.setVisible(true);
+                    stackPane.setPrefSize(LIST_WIDTH,LIST_HEIGHT);
+                    stage.setWidth(LIST_WIDTH);
+                    stage.setHeight(LIST_HEIGHT);
+                    listVBox.setVisible(true);
                 }
             } else {
                 if (editRaw()) {
                     addVBox.setVisible(false);
-                    stackPane.setPrefSize(CHOOSE_WIDTH, CHOOSE_HEIGHT);
-                    stage.setWidth(CHOOSE_WIDTH);
-                    stage.setHeight(CHOOSE_HEIGHT);
-                    chooseVBox.setVisible(true);
+                    stackPane.setPrefSize(LIST_WIDTH,LIST_HEIGHT);
+                    stage.setWidth(LIST_WIDTH);
+                    stage.setHeight(LIST_HEIGHT);
+                    listVBox.setVisible(true);
                 }
             }
         });
 
-        addButton.setOnAction(event -> {
-            if (addRaw()) {
-                stage.close();
-            }
-        });
     }
 
     public void setStage(Stage stage) {
         this.stage = stage;
 
-        stage.setOnCloseRequest(e -> ControllersManager.getInstance().setAddRawWindowController(null));
+        stage.setOnCloseRequest(event -> ControllersManager.getInstance().setNewRawWindowController(null));
     }
 
-    private boolean newRaw() {
+    private boolean addRaw() {
         rawNameField.getStyleClass().remove("error");
         costField.getStyleClass().remove("error");
 
@@ -223,31 +211,6 @@ public class AddRawWindowController implements Initializable {
         costField.setText("");
         unitBox.setValue(Unit.PIECE);
 
-        return true;
-    }
-
-    private boolean addRaw() {
-        Raw raw = rawList.getSelectionModel().getSelectedItem();
-        if (raw == null) {
-            if (chooseVBox.getChildren().size() == 4) {
-                Label errorChooseLabel = new Label(PropManager.getLabel("add_raw.error.nothing_selected"));
-                errorChooseLabel.setTextFill(Paint.valueOf("RED"));
-                chooseVBox.getChildren().add(1,errorChooseLabel);
-            }
-            return false;
-        }
-
-        quantityField.getStyleClass().remove("error");
-        String rawQuantity = quantityField.getText().trim();
-
-        //Wrong format on quantity
-        if (!rawQuantity.matches(Regexp.DECIMAL)) {
-            quantityField.getStyleClass().add("error");
-            return false;
-        }
-
-        Repo.getInstance().addRawToCurrent(raw,Integer.parseInt(rawQuantity));
-        ControllersManager.getInstance().getMainWindowController().updateCurrentGrid(false);
         return true;
     }
 
@@ -295,16 +258,17 @@ public class AddRawWindowController implements Initializable {
         editableRaw.setUnit(unitBox.getValue());
         JsonFileUtil.saveAll();
         rawList.refresh();
-        ControllersManager.getInstance().getMainWindowController().updateCurrentGrid(false);
 
         rawNameField.setText("");
         costField.setText("");
         unitBox.setValue(Unit.PIECE);
 
         return true;
+
     }
 
     private void deleteRaw(Raw raw) {
         Repo.getInstance().deleteRaw(raw);
+        rawList.refresh();
     }
 }

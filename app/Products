@@ -1,1 +1,2 @@
-{"name":"asd","unit":"PIECE","quantity":2,"raws":[{"name":"12","cost":2.0,"quantity":2,"unit":"PIECE"}],"salary":0.0,"cost":0.0}
+{"name":"Первый продукт","unit":"PIECE","quantity":12,"salary":0.0,"cost":0.0}
+{"name":"Метиломин","unit":"LITER","quantity":10,"salary":456.0,"cost":858.8399999999999}

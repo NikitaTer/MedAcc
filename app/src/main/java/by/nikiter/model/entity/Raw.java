@@ -8,13 +8,11 @@ public class Raw {
 
     private String name;
     private double cost;
-    private int quantity;
     private Unit unit;
 
-    public Raw(String name, double cost, int quantity, Unit unit) {
+    public Raw(String name, double cost, Unit unit) {
         this.name = name;
         this.cost = cost;
-        this.quantity = quantity;
         this.unit = unit;
     }
 
@@ -34,14 +32,6 @@ public class Raw {
         this.cost = cost;
     }
 
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
     public Unit getUnit() {
         return unit;
     }
@@ -54,16 +44,23 @@ public class Raw {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Raw raw = (Raw) o;
-        return Double.compare(raw.cost, cost) == 0 &&
-                quantity == raw.quantity &&
-                Objects.equals(name, raw.name) &&
-                unit == raw.unit;
+
+        if (Double.compare(raw.cost, cost) != 0) return false;
+        if (name != null ? !name.equals(raw.name) : raw.name != null) return false;
+        return unit == raw.unit;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, cost, quantity, unit);
+        int result;
+        long temp;
+        result = name != null ? name.hashCode() : 0;
+        temp = Double.doubleToLongBits(cost);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (unit != null ? unit.hashCode() : 0);
+        return result;
     }
 
     @Override

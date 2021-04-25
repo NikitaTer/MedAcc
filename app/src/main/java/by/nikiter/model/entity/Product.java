@@ -1,16 +1,17 @@
 package by.nikiter.model.entity;
 
 import by.nikiter.model.Unit;
+import com.google.gson.annotations.Expose;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Product {
     private String name;
     private Unit unit;
     private int quantity;
-    private List<Raw> raws = new ArrayList<>();
+
+    private transient Map<Raw, Integer> raws = new HashMap<>();
+
     private double salary = 0.0;
     private double cost = 0.0;
 
@@ -20,8 +21,8 @@ public class Product {
         this.quantity = quantity;
     }
 
-    public void addRaw(Raw raw) {
-        raws.add(raw);
+    public void addRaw(Raw raw, int quantity) {
+        raws.put(raw, quantity);
     }
 
     public void deleteRaw(Raw raw) {
@@ -52,11 +53,11 @@ public class Product {
         this.quantity = quantity;
     }
 
-    public List<Raw> getRaws() {
+    public Map<Raw, Integer> getRaws() {
         return raws;
     }
 
-    public void setRaws(List<Raw> raws) {
+    public void setRaws(Map<Raw, Integer> raws) {
         this.raws = raws;
     }
 
