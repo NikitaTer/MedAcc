@@ -1,1 +1,0 @@
-{"name":"Тестовый","unit":"PIECE","quantity":1,"salary":1000.0,"packagingUnits":[{"name":"Коробка","productQuantity":5,"unit":"PIECE","quantityInBox":4,"addExpPiece":0.2,"addExpSet":0.2,"pieceCost":6000.2,"setCost":24001.0,"piecePrice":7800.26,"setPrice":31201.3}]}
