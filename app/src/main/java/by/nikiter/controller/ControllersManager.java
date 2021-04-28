@@ -5,11 +5,15 @@ public class ControllersManager {
     private static volatile ControllersManager instance = null;
 
     private MainWindowController mainWindowController = null;
+
     private AddProductWindowController addProductWindowController = null;
     private AddRawWindowController addRawWindowController = null;
+    private NewRawWindowController newRawWindowController = null;
+    private AddPackagingWindowController addPackagingWindowController = null;
+
     private EditRawWindowController editRawWindowController = null;
     private EditProductWindowController editProductWindowController = null;
-    private NewRawWindowController newRawWindowController = null;
+
 
     private ControllersManager() {
 
@@ -75,5 +79,13 @@ public class ControllersManager {
 
     public void setNewRawWindowController(NewRawWindowController newRawWindowController) {
         this.newRawWindowController = newRawWindowController;
+    }
+
+    public AddPackagingWindowController getAddPackagingWindowController() {
+        return addPackagingWindowController;
+    }
+
+    public void setAddPackagingWindowController(AddPackagingWindowController addPackagingWindowController) {
+        this.addPackagingWindowController = addPackagingWindowController;
     }
 }

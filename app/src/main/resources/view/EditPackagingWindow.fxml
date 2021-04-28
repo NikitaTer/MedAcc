@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="10.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="by.nikiter.controller.EditPackagingWindowController">
+   <children>
+      <TextField fx:id="nameField" promptText="%add_pack.name" />
+      <HBox alignment="CENTER_RIGHT" spacing="5.0">
+         <children>
+            <Label text="%add_pack.product_quantity" textAlignment="RIGHT" wrapText="true" />
+            <TextField fx:id="productQuantityField" prefWidth="60.0" />
+            <Separator prefWidth="5.0" visible="false" />
+            <Label text="%add_pack.quantity_in_box" textAlignment="RIGHT" wrapText="true" />
+            <TextField fx:id="quantityInBoxField" prefWidth="60.0" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_RIGHT" spacing="5.0">
+         <children>
+            <Label text="%add_pack.add_exp_piece" textAlignment="RIGHT" />
+            <TextField fx:id="addExpPieceField" layoutX="221.0" layoutY="10.0" prefWidth="60.0" />
+            <Separator prefWidth="23.0" visible="false" />
+            <Label text="%add_pack.add_exp_set" textAlignment="RIGHT" wrapText="true" />
+            <TextField fx:id="addExpSetField" prefWidth="60.0" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_RIGHT" spacing="5.0">
+         <children>
+            <Label text="%edit_pack.piece_price" textAlignment="RIGHT" wrapText="true" />
+            <TextField fx:id="piecePriceField" prefWidth="60.0" />
+            <Separator prefWidth="41.0" visible="false" />
+            <Label text="%edit_pack.set_price" textAlignment="RIGHT" wrapText="true" />
+            <TextField fx:id="setPriceField" prefWidth="60.0" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_RIGHT" spacing="5.0">
+         <children>
+            <Label text="%add_pack.unit" textAlignment="RIGHT" wrapText="true" />
+            <ComboBox fx:id="unitBox" prefWidth="60.0" />
+         </children>
+      </HBox>
+      <Label fx:id="errorLabel" textAlignment="CENTER" textFill="RED" visible="false" />
+      <Button fx:id="editButton" mnemonicParsing="false" text="%edit_pack.edit_button" />
+   </children>
+   <padding>
+      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+   </padding>
+</VBox>

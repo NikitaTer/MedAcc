@@ -70,13 +70,27 @@ public class JsonFileUtil {
     public static List<Product> getAllProducts(ObservableList<Raw> raws) {
         List<Product> products = new ArrayList<>();
 
-        try (Stream<String> lines = Files.lines(new File(PRODUCT_FILE).toPath(), StandardCharsets.UTF_8)) {
+        File productFile = new File(PRODUCT_FILE);
+        File productRawFile = new File(PRODUCT_RAW_FILE);
+
+        try {
+            if (!productFile.exists()) {
+                productFile.createNewFile();
+            }
+            if (!productRawFile.exists()) {
+                productRawFile.createNewFile();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (Stream<String> lines = Files.lines(productFile.toPath(), StandardCharsets.UTF_8)) {
             lines.forEach(s -> products.add(gson.fromJson(s,Product.class)));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        try (Stream<String> lines = Files.lines(new File(PRODUCT_RAW_FILE).toPath(), StandardCharsets.UTF_8)) {
+        try (Stream<String> lines = Files.lines(productRawFile.toPath(), StandardCharsets.UTF_8)) {
             lines.forEach(s -> {
                 String[] nameRaws = s.split(" : ");
                 String productName = nameRaws[0];
@@ -123,7 +137,17 @@ public class JsonFileUtil {
     public static List<Raw> getAllRaws() {
         List<Raw> raws = new ArrayList<>();
 
-        try (Stream<String> lines = Files.lines(new File(RAW_FILE).toPath(), StandardCharsets.UTF_8)) {
+        File rawFile = new File(RAW_FILE);
+
+        try {
+            if (!rawFile.exists()) {
+                rawFile.createNewFile();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (Stream<String> lines = Files.lines(rawFile.toPath(), StandardCharsets.UTF_8)) {
             lines.forEach(s -> raws.add(gson.fromJson(s, Raw.class)));
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,7 +1,7 @@
 package by.nikiter.controller;
 
 import by.nikiter.model.Repo;
-import by.nikiter.model.Unit;
+import by.nikiter.model.entity.Unit;
 import by.nikiter.model.entity.Product;
 
 import by.nikiter.util.PropManager;

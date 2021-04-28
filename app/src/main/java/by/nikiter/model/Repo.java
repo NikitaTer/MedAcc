@@ -1,5 +1,6 @@
 package by.nikiter.model;
 
+import by.nikiter.model.entity.PackagingUnit;
 import by.nikiter.model.entity.Product;
 import by.nikiter.model.entity.Raw;
 import by.nikiter.util.JsonFileUtil;
@@ -69,6 +70,17 @@ public class Repo {
         JsonFileUtil.saveAllRaws();
     }
 
+    public void addRawToCurrent(Raw raw, int cost) {
+        currentProduct.addRaw(raw, cost);
+        JsonFileUtil.saveAllProducts();
+
+    }
+
+    public void addPackagingToCurrent(PackagingUnit packaging) {
+        currentProduct.addPackaging(packaging);
+        JsonFileUtil.saveAllProducts();
+    }
+
     public void deleteProduct(Product product) {
         products.remove(product);
         JsonFileUtil.saveAllProducts();
@@ -83,12 +95,6 @@ public class Repo {
 
     public Product getCurrentProduct() {
         return currentProduct;
-    }
-
-    public void addRawToCurrent(Raw raw, int cost) {
-        currentProduct.addRaw(raw, cost);
-        JsonFileUtil.saveAllProducts();
-
     }
 
     public void deleteRaw(Raw raw) {
@@ -117,5 +123,23 @@ public class Repo {
     public void deleteRawFromProduct(Product product, Raw raw) {
         product.deleteRaw(raw);
         JsonFileUtil.saveAllProducts();
+    }
+    public void deletePackagingFromProduct(Product product, PackagingUnit pack) {
+
+        Alert alert= new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(PropManager.getLabel("main.alert.delete.packaging.title"));
+        alert.setHeaderText(PropManager.getLabel("main.alert.delete.packaging.body"));
+        alert.setContentText(null);
+
+        ButtonType yesButton = new ButtonType(PropManager.getLabel("main.alert.delete.packaging.yes"), ButtonBar.ButtonData.YES);
+        ButtonType noButton = new ButtonType(PropManager.getLabel("main.alert.delete.packaging.no"), ButtonBar.ButtonData.NO);
+
+        alert.getButtonTypes().setAll(yesButton,noButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == yesButton) {
+            product.deletePackaging(pack);
+            JsonFileUtil.saveAllProducts();
+        }
     }
 }

@@ -1,3 +1,2 @@
-{"name":"Первое сырьё_1","cost":12.0,"unit":"LITER"}
-{"name":"Спирт","cost":8.28,"unit":"LITER"}
-{"name":"Серебролист","cost":4.0,"unit":"GRAM"}
+{"name":"Первое сырьё","cost":10.0,"unit":"MILLIGRAM"}
+{"name":"Второе сырьё","cost":25.0,"unit":"PIECE"}

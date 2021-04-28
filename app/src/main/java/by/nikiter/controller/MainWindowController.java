@@ -1,16 +1,8 @@
 package by.nikiter.controller;
 
-import by.nikiter.model.entity.ProductGridMap;
-import by.nikiter.model.entity.ProductGridPane;
+import by.nikiter.model.entity.*;
 import by.nikiter.model.Repo;
-import by.nikiter.model.Unit;
-import by.nikiter.model.entity.Product;
-import by.nikiter.model.entity.Raw;
-import by.nikiter.model.format.CellFormatter;
-import by.nikiter.util.CalcUtil;
-import by.nikiter.util.JsonFileUtil;
-import by.nikiter.util.PropManager;
-import by.nikiter.util.Regexp;
+import by.nikiter.util.*;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -22,6 +14,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
@@ -32,6 +25,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -98,14 +92,14 @@ public class MainWindowController implements Initializable {
                 }
             };
 
-            MenuItem edit = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.edit"));
+            MenuItem edit = new MenuItem(PropManager.getLabel("main.list.product.context_menu.edit"));
             edit.setOnAction(event -> {
                 if (!cell.isEmpty()) {
                     openEditProductWindow(cell.getItem());
                 }
             });
 
-            MenuItem delete = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.delete"));
+            MenuItem delete = new MenuItem(PropManager.getLabel("main.list.product.context_menu.delete"));
             delete.setOnAction(event -> {
                 if (!cell.isEmpty()) {
                     deleteProduct(cell.getItem());
@@ -158,7 +152,6 @@ public class MainWindowController implements Initializable {
         ProductGridPane gridPane = new ProductGridPane();
         gridPane.setVgap(5);
         gridPane.setHgap(5);
-        HBox.setHgrow(gridPane, Priority.ALWAYS);
         productGrids.add(product, gridPane);
 
         Label productNameLabel = new Label(product.getName());
@@ -173,17 +166,16 @@ public class MainWindowController implements Initializable {
         HBox nameBox = new HBox(5, productNameLabel, productQuantityLabel, productUnitLabel);
 
         Node rawNode = buildRawNode(product);
-        Node salaryNode = buildSalaryNode(product);
         Node calcNode = buildCalcNode(product);
-        Node buttonsNode = buildButtonsNode(product);
+        Node packagingNode = buildPackagingNode(product);
 
         VBox vBox = new VBox(5, nameBox, rawNode);
         GridPane.setHgrow(vBox, Priority.ALWAYS);
+        GridPane.setHgrow(packagingNode, Priority.ALWAYS);
 
         gridPane.add(vBox, 0, 0);
-        gridPane.add(salaryNode, 0, 1);
-        gridPane.add(calcNode, 1,0);
-        gridPane.add(buttonsNode,1,1);
+        gridPane.add(packagingNode, 0,1);
+        gridPane.add(calcNode,1,0);
         showGrid(gridPane);
     }
 
@@ -201,6 +193,10 @@ public class MainWindowController implements Initializable {
         TableView<Map.Entry<Raw, Integer>> rawTable = new TableView<>(FXCollections.observableArrayList(product.getRaws().entrySet()));
         productGrids.get(product).setRawTable(rawTable);
         rawTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        rawTable.setMinSize(rawTable.getPrefWidth(),rawTable.getPrefHeight());
+
+        ScrollPane scrollPane = new ScrollPane(rawTable);
+        scrollPane.setFitToWidth(true);
 
         rawTable.setRowFactory(tv -> {
             TableRow<Map.Entry<Raw,Integer>> row = new TableRow<>();
@@ -222,11 +218,6 @@ public class MainWindowController implements Initializable {
             ContextMenu contextMenu = new ContextMenu(edit,delete);
 
             row.setContextMenu(contextMenu);
-            row.setOnMouseClicked(e -> {
-                if (e.getClickCount() == 2 && !row.isEmpty()) {
-                    openEditRawWindow(row.getItem());
-                }
-            });
 
             return row;
         });
@@ -237,7 +228,7 @@ public class MainWindowController implements Initializable {
 
         TableColumn<Map.Entry<Raw,Integer>,Double> costColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.cost"));
         costColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getKey().getCost()).asObject());
-        costColumn.setCellFactory(CellFormatter.getRawCostFormat());
+        costColumn.setCellFactory(CellFormatter.getRawDoubleFormat());
         rawTable.getColumns().add(costColumn);
 
         TableColumn<Map.Entry<Raw,Integer>,Integer> quantityColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.quantity"));
@@ -248,81 +239,69 @@ public class MainWindowController implements Initializable {
         unitColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKey().getUnit()));
         rawTable.getColumns().add(unitColumn);
 
-        return new VBox(5, new HBox(20,tableNameLabel,addRawLabel),rawTable);
-    }
-
-    private Node buildSalaryNode(Product product) {
-        Label salaryLabel = new Label(PropManager.getLabel("main.salary"));
-        TextField salaryField = new TextField();
-        productGrids.get(product).setSalaryField(salaryField);
-        salaryField.setPrefWidth(60.0);
-        salaryField.setText(String.format(Locale.US,"%.2f",product.getSalary()));
-        HBox salaryBox = new HBox(5,salaryLabel,salaryField);
-        salaryBox.setAlignment(Pos.CENTER_LEFT);
-        return salaryBox;
+        return new VBox(5, new HBox(20,tableNameLabel,addRawLabel),scrollPane);
     }
 
     private Node buildCalcNode(Product product) {
+
+        //build calc grid
         Label rawsCostLabel = new Label(PropManager.getLabel("main.calc.raws.cost"));
+        rawsCostLabel.setTextAlignment(TextAlignment.RIGHT);
+        GridPane.setHalignment(rawsCostLabel, HPos.RIGHT);
         Label totalCostLabel = new Label(PropManager.getLabel("main.calc.total.cost"));
+        totalCostLabel.setTextAlignment(TextAlignment.RIGHT);
+        GridPane.setHalignment(totalCostLabel, HPos.RIGHT);
         Label profitPercentLabel = new Label(PropManager.getLabel("main.calc.profit.percent"));
-        Label profitNumberLabel = new Label(PropManager.getLabel("main.calc.profit.number"));
-        Label productCostLabel = new Label(PropManager.getLabel("main.calc.product.cost"));
+        profitPercentLabel.setTextAlignment(TextAlignment.RIGHT);
+        GridPane.setHalignment(profitPercentLabel, HPos.RIGHT);
 
         TextField rawsCostField = new TextField();
         rawsCostField.setEditable(false);
+        rawsCostField.setPrefWidth(60);
         TextField totalCostField = new TextField();
         totalCostField.setEditable(false);
+        totalCostField.setPrefWidth(60);
         TextField profitPercentField = new TextField();
-        TextField profitNumberField = new TextField();
-        TextField productCostField = new TextField();
+        profitPercentField.setPrefWidth(60);
 
         productGrids.get(product).setRawsCostField(rawsCostField);
         productGrids.get(product).setTotalCostField(totalCostField);
         productGrids.get(product).setProfitPercentField(profitPercentField);
-        productGrids.get(product).setProfitNumberField(profitNumberField);
-        productGrids.get(product).setProductCostField(productCostField);
 
-        RadioButton profitPercentRadio = new RadioButton();
-        RadioButton profitNumberRadio = new RadioButton();
-        RadioButton productCostRadio = new RadioButton();
-        productCostRadio.setSelected(true);
+        CheckBox profitPercentBox = new CheckBox();
 
-        productGrids.get(product).setProfitPercentRadio(profitPercentRadio);
-        productGrids.get(product).setProfitNumberRadio(profitNumberRadio);
-        productGrids.get(product).setProductCostRadio(productCostRadio);
-
-        ToggleGroup toggleGroup = new ToggleGroup();
-        profitPercentRadio.setToggleGroup(toggleGroup);
-        profitNumberRadio.setToggleGroup(toggleGroup);
-        productCostRadio.setToggleGroup(toggleGroup);
+        productGrids.get(product).setProfitPercentBox(profitPercentBox);
 
         rawsCostField.setText(String.format(Locale.US,"%.2f",CalcUtil.calcRawsCost(product)));
-        totalCostField.setText(String.format(Locale.US,"%.2f",CalcUtil.calcTotalCost(product)));
+        totalCostField.setText(String.format(Locale.US,"%.2f",CalcUtil.calcProductCost(product)));
         profitPercentField.setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitPercent(product)));
-        profitNumberField.setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitNumber(product)));
-        productCostField.setText(String.format(Locale.US,"%.2f",product.getCost()));
 
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(5);
-        gridPane.setVgap(5);
+        GridPane calcGrid = new GridPane();
+        calcGrid.setHgap(5);
+        calcGrid.setVgap(5);
+        calcGrid.setAlignment(Pos.CENTER_RIGHT);
 
-        gridPane.addRow(0,rawsCostLabel,rawsCostField);
-        gridPane.addRow(1,totalCostLabel,totalCostField);
-        gridPane.addRow(2,profitPercentLabel,profitPercentField,profitPercentRadio);
-        gridPane.addRow(3,profitNumberLabel,profitNumberField,profitNumberRadio);
-        gridPane.addRow(4,productCostLabel,productCostField,productCostRadio);
+        calcGrid.addRow(0,rawsCostLabel,rawsCostField);
+        calcGrid.addRow(1,totalCostLabel,totalCostField);
+        calcGrid.addRow(2,profitPercentLabel,profitPercentField,profitPercentBox);
 
-        return gridPane;
-    }
+        //build salary box
+        Label salaryLabel = new Label(PropManager.getLabel("main.salary"));
+        salaryLabel.setTextAlignment(TextAlignment.RIGHT);
+        GridPane.setHalignment(salaryLabel,HPos.RIGHT);
+        TextField salaryField = new TextField();
+        productGrids.get(product).setSalaryField(salaryField);
+        salaryField.setPrefWidth(60.0);
+        salaryField.setText(String.format(Locale.US,"%.2f",product.getSalary()));
+        calcGrid.addRow(4,salaryLabel,salaryField);
 
-    private Node buildButtonsNode(Product product) {
+        //build calc button
         Button calcButton = new Button(PropManager.getLabel("main.calc_button"));
 
         Label errorLabel = new Label("");
         errorLabel.setTextFill(Paint.valueOf("RED"));
         errorLabel.setVisible(false);
-        errorLabel.setAlignment(Pos.CENTER);
+        errorLabel.setTextAlignment(TextAlignment.CENTER);
 
         calcButton.setOnAction(event -> {
             if (isFieldsValid(product,errorLabel)) {
@@ -330,10 +309,113 @@ public class MainWindowController implements Initializable {
             }
         });
 
-        VBox vBox = new VBox(5, calcButton, errorLabel);
+        VBox calcButtonBox = new VBox(5, calcButton, errorLabel);
+        calcButtonBox.setAlignment(Pos.CENTER);
+
+        VBox vBox = new VBox(5,calcGrid,calcButtonBox);
         vBox.setAlignment(Pos.CENTER);
+        vBox.setMinWidth(190);
 
         return vBox;
+    }
+
+    private Node buildPackagingNode(Product product) {
+
+        Label tableNameLabel = new Label(PropManager.getLabel("main.table.packaging.name"));
+
+        Label addRawLabel = new Label(PropManager.getLabel("main.table.packaging.add"));
+        addRawLabel.setAccessibleRole(AccessibleRole.BUTTON);
+        addRawLabel.setUnderline(true);
+        addRawLabel.setOnMouseClicked(event -> {
+            openAddPackagingWindow();
+        });
+
+        TableView<PackagingUnit> packagingTable = new TableView<>(FXCollections.observableArrayList(product.getPackagingUnits()));
+        productGrids.get(product).setPackagingTable(packagingTable);
+        packagingTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        packagingTable.setMinSize(packagingTable.getPrefWidth(),packagingTable.getPrefHeight());
+
+        ScrollPane scrollPane = new ScrollPane(packagingTable);
+
+        packagingTable.setRowFactory(param -> {
+            TableRow<PackagingUnit> row = new TableRow<>();
+
+            MenuItem edit = new MenuItem(PropManager.getLabel("main.table.packaging.menu.edit"));
+            edit.setOnAction(event -> {
+                if (!row.isEmpty()) {
+                    openEditPackagingWindow(row.getItem());
+                }
+            });
+
+            MenuItem delete = new MenuItem(PropManager.getLabel("main.table.packaging.menu.delete"));
+            delete.setOnAction(event -> {
+                if (!row.isEmpty()) {
+                    deletePackagingFromProduct(product, row.getItem());
+                }
+            });
+
+            row.setContextMenu(new ContextMenu(edit,delete));
+
+            return row;
+        });
+
+        //name column
+        TableColumn<PackagingUnit, String> nameColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.name"));
+        nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
+        packagingTable.getColumns().add(nameColumn);
+
+        //product quantity column
+        TableColumn<PackagingUnit, Integer> productQuantityColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.product_quantity"));
+        productQuantityColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getProductQuantity()).asObject());
+        packagingTable.getColumns().add(productQuantityColumn);
+
+        //unit column
+        TableColumn<PackagingUnit, Unit> unitColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.unit"));
+        unitColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getUnit()));
+        packagingTable.getColumns().add(unitColumn);
+
+        //quantity in box column
+        TableColumn<PackagingUnit, Integer> quantityInBoxColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.quantity_in_box"));
+        quantityInBoxColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getQuantityInBox()).asObject());
+        packagingTable.getColumns().add(quantityInBoxColumn);
+
+        //additional expenses by piece column
+        TableColumn<PackagingUnit, Double> addExpPieceColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.add_exp_piece"));
+        addExpPieceColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getAddExpPiece()).asObject());
+        addExpPieceColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
+        packagingTable.getColumns().add(addExpPieceColumn);
+
+        //additional expenses by set column
+        TableColumn<PackagingUnit, Double> addExpSetColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.add_exp_set"));
+        addExpSetColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getAddExpSet()).asObject());
+        addExpSetColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
+        packagingTable.getColumns().add(addExpSetColumn);
+
+        //piece cost column
+        TableColumn<PackagingUnit, Double> pieceCostColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.piece_cost"));
+        pieceCostColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getPieceCost()).asObject());
+        pieceCostColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
+        packagingTable.getColumns().add(pieceCostColumn);
+
+        //set cost column
+        TableColumn<PackagingUnit, Double> setCostColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.set_cost"));
+        setCostColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getSetCost()).asObject());
+        setCostColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
+        packagingTable.getColumns().add(setCostColumn);
+
+        //piece price column
+        TableColumn<PackagingUnit, Double> piecePriceColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.piece_price"));
+        piecePriceColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getPiecePrice()).asObject());
+        piecePriceColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
+        packagingTable.getColumns().add(piecePriceColumn);
+
+        //set price column
+        TableColumn<PackagingUnit, Double> setPriceColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.set_price"));
+        setPriceColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getSetPrice()).asObject());
+        setPriceColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
+        packagingTable.getColumns().add(setPriceColumn);
+
+        return new VBox(5, new HBox(20, tableNameLabel,addRawLabel), scrollPane);
     }
 
     private void showGrid(ProductGridPane gridPane) {
@@ -344,6 +426,10 @@ public class MainWindowController implements Initializable {
     }
 
     public void updateCurrentGrid(boolean updateSalary) {
+        updateCurrentGrid(updateSalary,null);
+    }
+
+    public void updateCurrentGrid(boolean updateSalary, PackagingUnit pack) {
         Product product = Repo.getInstance().getCurrentProduct();
         ProductGridPane gridPane = productGrids.get(product);
 
@@ -362,33 +448,21 @@ public class MainWindowController implements Initializable {
         }
 
         gridPane.getRawsCostField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcRawsCost(product)));
-        gridPane.getTotalCostField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcTotalCost(product)));
+        gridPane.getTotalCostField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProductCost(product)));
 
-        if (gridPane.getProfitPercentRadio().isSelected()) {
-            product.setCost(CalcUtil.calcCostByProfitPercent(
-                    product,
-                    Double.parseDouble(gridPane.getProfitPercentField().getText())
-            ));
-            JsonFileUtil.saveAllProducts();
-
-            gridPane.getProfitPercentField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitPercent(product)));
-            gridPane.getProfitNumberField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitNumber(product)));
-            gridPane.getProductCostField().setText(String.format(Locale.US,"%.2f",product.getCost()));
-        } else if (gridPane.getProfitNumberRadio().isSelected()) {
-            product.setCost(CalcUtil.calcCostByProfitNumber(
-                    product,
-                    Double.parseDouble(gridPane.getProfitNumberField().getText())
-            ));
-            JsonFileUtil.saveAllProducts();
-
-            gridPane.getProfitPercentField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitPercent(product)));
-            gridPane.getProfitNumberField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitNumber(product)));
-            gridPane.getProductCostField().setText(String.format(Locale.US,"%.2f",product.getCost()));
-        } else {
-            gridPane.getProfitPercentField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitPercent(product)));
-            gridPane.getProfitNumberField().setText(String.format(Locale.US,"%.2f",CalcUtil.calcProfitNumber(product)));
-            gridPane.getProductCostField().setText(String.format(Locale.US,"%.2f",product.getCost()));
+        CalcUtil.calcPackagingsCosts(product);
+        if (!gridPane.getProfitPercentBox().isSelected()) {
+            if (pack == null) {
+                gridPane.getProfitPercentField().setText(String.format(Locale.US, "%.2f", CalcUtil.calcProfitPercent(product)));
+            } else {
+                gridPane.getProfitPercentField().setText(String.format(Locale.US, "%.2f", CalcUtil.calcProfitPercent(pack)));
+            }
         }
+        CalcUtil.calcPackagingsPricesByPercent(product, Double.parseDouble(gridPane.getProfitPercentField().getText()));
+        JsonFileUtil.saveAllProducts();
+
+        gridPane.getPackagingTable().setItems(FXCollections.observableArrayList(product.getPackagingUnits()));
+        gridPane.getPackagingTable().refresh();
     }
 
     private void openAddProductWindow() {
@@ -411,6 +485,166 @@ public class MainWindowController implements Initializable {
             addProductStage.setResizable(false);
             root.getStylesheets().add("styles/style.css");
             addProductStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openAddRawWindow() {
+        Stage addRawStage = new Stage();
+        addRawStage.setTitle(PropManager.getLabel("add_raw.name"));
+        addRawStage.getIcons().add(new Image("images/logo.png"));
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/AddRawWindow.fxml"),
+                ResourceBundle.getBundle("labels")
+        );
+
+        try {
+            Parent root = loader.load();
+            ((AddRawWindowController)loader.getController()).setStage(addRawStage);
+
+            addRawStage.setScene(new Scene(root));
+            addRawStage.initModality(Modality.WINDOW_MODAL);
+            addRawStage.initOwner(stage);
+            addRawStage.setResizable(false);
+            root.getStylesheets().add("styles/style.css");
+            addRawStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openAddPackagingWindow() {
+        Stage addPackagingStage = new Stage();
+        addPackagingStage.setTitle(PropManager.getLabel("add_pack.title"));
+        addPackagingStage.getIcons().add(new Image("images/logo.png"));
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/addPackagingWindow.fxml"),
+                ResourceBundle.getBundle("labels")
+        );
+
+        try {
+            Parent root = loader.load();
+            ((AddPackagingWindowController)loader.getController()).setStage(addPackagingStage);
+
+            addPackagingStage.setScene(new Scene(root));
+            addPackagingStage.initModality(Modality.WINDOW_MODAL);
+            addPackagingStage.initOwner(stage);
+            addPackagingStage.setResizable(false);
+            root.getStylesheets().add("styles/style.css");
+            addPackagingStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openNewRawWindow() {
+        Stage newRawStage = new Stage();
+        newRawStage.setTitle(PropManager.getLabel("new_raw.title"));
+        newRawStage.getIcons().add(new Image("images/logo.png"));
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/NewRawWindow.fxml"),
+                ResourceBundle.getBundle("labels")
+        );
+
+        try {
+            Parent root = loader.load();
+            ((NewRawWindowController)loader.getController()).setStage(newRawStage);
+
+            newRawStage.setScene(new Scene(root));
+            newRawStage.initModality(Modality.WINDOW_MODAL);
+            newRawStage.initOwner(stage);
+            newRawStage.setResizable(false);
+            root.getStylesheets().add("styles/style.css");
+            newRawStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openEditRawWindow(Map.Entry<Raw,Integer> raw) {
+        Stage editRawStage = new Stage();
+        editRawStage.setTitle(PropManager.getLabel("edit_raw.title"));
+        editRawStage.getIcons().add(new Image("images/logo.png"));
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/EditRawWindow.fxml"),
+                ResourceBundle.getBundle("labels")
+        );
+
+        try {
+            Parent root = loader.load();
+            ((EditRawWindowController)loader.getController()).setStage(editRawStage);
+            ((EditRawWindowController)loader.getController()).setProdRaw(Repo.getInstance().getCurrentProduct(),raw);
+
+            editRawStage.setScene(new Scene(root));
+            editRawStage.initModality(Modality.WINDOW_MODAL);
+            editRawStage.initOwner(stage);
+            editRawStage.setResizable(false);
+            root.getStylesheets().add("styles/style.css");
+            editRawStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void openEditProductWindow(Product product) {
+        Stage editProductStage = new Stage();
+        editProductStage.setTitle(PropManager.getLabel("edit_prod.title"));
+        editProductStage.getIcons().add(new Image("images/logo.png"));
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/EditProductWindow.fxml"),
+                ResourceBundle.getBundle("labels")
+        );
+
+        try {
+            Parent root = loader.load();
+            ((EditProductWindowController)loader.getController()).setStage(editProductStage);
+            ((EditProductWindowController)loader.getController()).setProduct(product);
+
+            editProductStage.setScene(new Scene(root));
+            editProductStage.initModality(Modality.WINDOW_MODAL);
+            editProductStage.initOwner(stage);
+            editProductStage.setResizable(false);
+            root.getStylesheets().add("styles/style.css");
+            editProductStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openEditPackagingWindow(PackagingUnit packaging) {
+        Stage editPackagingStage = new Stage();
+        editPackagingStage.setTitle(PropManager.getLabel("edit_pack.title"));
+        editPackagingStage.getIcons().add(new Image("images/logo.png"));
+
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/EditPackagingWindow.fxml"),
+                ResourceBundle.getBundle("labels")
+        );
+
+        try {
+            Parent root = loader.load();
+            ((EditPackagingWindowController)loader.getController()).setStage(editPackagingStage);
+            ((EditPackagingWindowController)loader.getController()).setPackaging(packaging);
+
+            editPackagingStage.setScene(new Scene(root));
+            editPackagingStage.initModality(Modality.WINDOW_MODAL);
+            editPackagingStage.initOwner(stage);
+            editPackagingStage.setResizable(false);
+            root.getStylesheets().add("styles/style.css");
+            editPackagingStage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -447,111 +681,9 @@ public class MainWindowController implements Initializable {
         updateCurrentGrid(false);
     }
 
-    private void openAddRawWindow() {
-        Stage addRawStage = new Stage();
-        addRawStage.setTitle(PropManager.getLabel("add_raw.name"));
-        addRawStage.getIcons().add(new Image("images/logo.png"));
-
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/view/AddRawWindow.fxml"),
-                ResourceBundle.getBundle("labels")
-        );
-
-        try {
-            Parent root = loader.load();
-            ((AddRawWindowController)loader.getController()).setStage(addRawStage);
-
-            addRawStage.setScene(new Scene(root));
-            addRawStage.initModality(Modality.WINDOW_MODAL);
-            addRawStage.initOwner(stage);
-            addRawStage.setResizable(false);
-            root.getStylesheets().add("styles/style.css");
-            addRawStage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void openNewRawWindow() {
-        Stage newRawStage = new Stage();
-        newRawStage.setTitle(PropManager.getLabel("new_raw.title"));
-        newRawStage.getIcons().add(new Image("images/logo.png"));
-
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/view/NewRawWindow.fxml"),
-                ResourceBundle.getBundle("labels")
-        );
-
-        try {
-            Parent root = loader.load();
-            ((NewRawWindowController)loader.getController()).setStage(newRawStage);
-
-            newRawStage.setScene(new Scene(root));
-            newRawStage.initModality(Modality.WINDOW_MODAL);
-            newRawStage.initOwner(stage);
-            newRawStage.setResizable(false);
-            root.getStylesheets().add("styles/style.css");
-            newRawStage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void openEditRawWindow(Map.Entry<Raw,Integer> raw) {
-        Stage editRawStage = new Stage();
-        editRawStage.setTitle(PropManager.getLabel("edit_raw.name"));
-        editRawStage.getIcons().add(new Image("images/logo.png"));
-
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/view/EditRawWindow.fxml"),
-                ResourceBundle.getBundle("labels")
-        );
-
-        try {
-            Parent root = loader.load();
-            ((EditRawWindowController)loader.getController()).setStage(editRawStage);
-            ((EditRawWindowController)loader.getController()).setProdRaw(Repo.getInstance().getCurrentProduct(),raw);
-
-            editRawStage.setScene(new Scene(root));
-            editRawStage.initModality(Modality.WINDOW_MODAL);
-            editRawStage.initOwner(stage);
-            editRawStage.setResizable(false);
-            root.getStylesheets().add("styles/style.css");
-            editRawStage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void openEditProductWindow(Product product) {
-        Stage editProductStage = new Stage();
-        editProductStage.setTitle(PropManager.getLabel("edit_prod.name"));
-        editProductStage.getIcons().add(new Image("images/logo.png"));
-
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/view/EditProductWindow.fxml"),
-                ResourceBundle.getBundle("labels")
-        );
-
-        try {
-            Parent root = loader.load();
-            ((EditProductWindowController)loader.getController()).setStage(editProductStage);
-            ((EditProductWindowController)loader.getController()).setProduct(product);
-
-            editProductStage.setScene(new Scene(root));
-            editProductStage.initModality(Modality.WINDOW_MODAL);
-            editProductStage.initOwner(stage);
-            editProductStage.setResizable(false);
-            root.getStylesheets().add("styles/style.css");
-            editProductStage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void deletePackagingFromProduct(Product product, PackagingUnit packaging) {
+        Repo.getInstance().deletePackagingFromProduct(product, packaging);
+        updateCurrentGrid(false);
     }
 
     //shit-code
@@ -562,13 +694,9 @@ public class MainWindowController implements Initializable {
         errorLabel.setVisible(false);
         gridPane.getSalaryField().getStyleClass().remove("error");
         gridPane.getProfitPercentField().getStyleClass().remove("error");
-        gridPane.getProfitNumberField().getStyleClass().remove("error");
-        gridPane.getProductCostField().getStyleClass().remove("error");
 
         String salary = gridPane.getSalaryField().getText().trim();
         String profitPercent = gridPane.getProfitPercentField().getText().trim();
-        String profitNumber = gridPane.getProfitNumberField().getText().trim();
-        String productCost = gridPane.getProductCostField().getText().trim();
 
         if (!salary.matches(Regexp.DOUBLE)) {
             gridPane.getSalaryField().getStyleClass().add("error");
@@ -580,26 +708,10 @@ public class MainWindowController implements Initializable {
         if (!profitPercent.contains(".")) {
             gridPane.getProfitPercentField().setText(profitPercent + ".0");
         }
-        if (!profitNumber.contains(".")) {
-            gridPane.getProfitNumberField().setText(profitNumber + ".0");
-        }
-        if (!productCost.contains(".")) {
-            gridPane.getProductCostField().setText(productCost + ".0");
-        }
 
-        if (gridPane.getProfitPercentRadio().isSelected() && !profitPercent.matches(Regexp.DOUBLE)) {
+        if (gridPane.getProfitPercentBox().isSelected() && !profitPercent.matches(Regexp.DOUBLE)) {
             gridPane.getProfitPercentField().getStyleClass().add("error");
             isValid = false;
-        } else if (gridPane.getProfitNumberRadio().isSelected() && !profitNumber.matches(Regexp.DOUBLE)) {
-            gridPane.getProfitNumberField().getStyleClass().add("error");
-            isValid = false;
-        } else if (gridPane.getProductCostRadio().isSelected()) {
-            if (!productCost.matches(Regexp.DOUBLE)) {
-                gridPane.getProductCostField().getStyleClass().add("error");
-                isValid = false;
-            } else {
-                product.setCost(Double.parseDouble(productCost));
-            }
         }
 
         if (!isValid) {

@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="stackPane" prefHeight="426.0" prefWidth="465.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.nikiter.controller.NewRawWindowController">
+<StackPane fx:id="stackPane" prefHeight="426.0" prefWidth="465.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="by.nikiter.controller.NewRawWindowController">
    <children>
       <VBox fx:id="addVBox" alignment="CENTER" spacing="5.0" visible="false">
          <children>

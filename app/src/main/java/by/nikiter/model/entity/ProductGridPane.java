@@ -1,9 +1,6 @@
 package by.nikiter.model.entity;
 
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 import java.util.Map;
@@ -11,6 +8,7 @@ import java.util.Map;
 public class ProductGridPane extends GridPane {
 
     private TableView<Map.Entry<Raw,Integer>> rawTable = null;
+    private TableView<PackagingUnit> packagingTable = null;
 
     private Label productNameLabel = null;
     private Label productQuantityLabel = null;
@@ -21,12 +19,8 @@ public class ProductGridPane extends GridPane {
     private TextField rawsCostField = null;
     private TextField totalCostField = null;
     private TextField profitPercentField = null;
-    private TextField profitNumberField = null;
-    private TextField productCostField = null;
 
-    private RadioButton profitPercentRadio = null;
-    private RadioButton profitNumberRadio = null;
-    private RadioButton productCostRadio = null;
+    private CheckBox profitPercentBox = null;
 
     public TableView<Map.Entry<Raw,Integer>> getRawTable() {
         return rawTable;
@@ -68,44 +62,12 @@ public class ProductGridPane extends GridPane {
         this.profitPercentField = profitPercentField;
     }
 
-    public TextField getProfitNumberField() {
-        return profitNumberField;
+    public CheckBox getProfitPercentBox() {
+        return profitPercentBox;
     }
 
-    public void setProfitNumberField(TextField profitNumberField) {
-        this.profitNumberField = profitNumberField;
-    }
-
-    public TextField getProductCostField() {
-        return productCostField;
-    }
-
-    public void setProductCostField(TextField productCostField) {
-        this.productCostField = productCostField;
-    }
-
-    public RadioButton getProfitPercentRadio() {
-        return profitPercentRadio;
-    }
-
-    public void setProfitPercentRadio(RadioButton profitPercentRadio) {
-        this.profitPercentRadio = profitPercentRadio;
-    }
-
-    public RadioButton getProfitNumberRadio() {
-        return profitNumberRadio;
-    }
-
-    public void setProfitNumberRadio(RadioButton profitNumberRadio) {
-        this.profitNumberRadio = profitNumberRadio;
-    }
-
-    public RadioButton getProductCostRadio() {
-        return productCostRadio;
-    }
-
-    public void setProductCostRadio(RadioButton productCostRadio) {
-        this.productCostRadio = productCostRadio;
+    public void setProfitPercentBox(CheckBox profitPercentBox) {
+        this.profitPercentBox = profitPercentBox;
     }
 
     public Label getProductNameLabel() {
@@ -130,6 +92,14 @@ public class ProductGridPane extends GridPane {
 
     public void setProductUnitLabel(Label productUnitLabel) {
         this.productUnitLabel = productUnitLabel;
+    }
+
+    public TableView<PackagingUnit> getPackagingTable() {
+        return packagingTable;
+    }
+
+    public void setPackagingTable(TableView<PackagingUnit> packagingTable) {
+        this.packagingTable = packagingTable;
     }
 
     @Override

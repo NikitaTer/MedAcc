@@ -1,7 +1,7 @@
 package by.nikiter.controller;
 
 import by.nikiter.model.Repo;
-import by.nikiter.model.Unit;
+import by.nikiter.model.entity.Unit;
 import by.nikiter.model.entity.Product;
 import by.nikiter.util.JsonFileUtil;
 import by.nikiter.util.PropManager;
@@ -42,9 +42,6 @@ public class EditProductWindowController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         ControllersManager.getInstance().setEditProductWindowController(this);
 
-        unitBox.setItems(FXCollections.observableArrayList(Unit.values()));
-        unitBox.setValue(Unit.PIECE);
-
         editButton.setOnAction(e -> {
             if (editProduct()) {
                 JsonFileUtil.saveAllProducts();
@@ -66,6 +63,34 @@ public class EditProductWindowController implements Initializable {
 
         productNameField.setText(product.getName());
         quantityField.setText(String.valueOf(product.getQuantity()));
+
+        if (product.getPackagingUnits().isEmpty()) {
+            unitBox.setItems(FXCollections.observableArrayList(Unit.values()));
+        } else {
+            switch (product.getUnit()) {
+                case PIECE:
+                    unitBox.setItems(FXCollections.observableArrayList(Unit.PIECE));
+                    break;
+
+                case MILLIGRAM:
+
+                case GRAM:
+
+                case KILOGRAM:
+                    unitBox.setItems(FXCollections.observableArrayList(Unit.getGramsUnits()));
+                    break;
+
+                case MILLILITER:
+
+                case LITER:
+                    unitBox.setItems(FXCollections.observableArrayList(Unit.getLitersUnits()));
+                    break;
+
+                default:
+                    unitBox.setItems(FXCollections.observableArrayList(Unit.values()));
+                    break;
+            }
+        }
         unitBox.setValue(product.getUnit());
     }
 

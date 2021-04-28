@@ -1,9 +1,5 @@
 package by.nikiter.model.entity;
 
-import by.nikiter.model.Unit;
-
-import java.util.Objects;
-
 public class Raw {
 
     private String name;
@@ -65,6 +61,10 @@ public class Raw {
 
     @Override
     public String toString() {
-        return name;
+        return "Raw{" +
+                "name='" + name + '\'' +
+                ", cost=" + cost +
+                ", unit=" + unit +
+                '}';
     }
 }

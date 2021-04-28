@@ -32,11 +32,11 @@
       </MenuBar>
       <HBox fx:id="mainHBox" layoutX="148.0" layoutY="51.0" prefHeight="310.0" prefWidth="556.0" spacing="5.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="114.0" AnchorPane.topAnchor="50.0">
          <children>
-            <VBox alignment="TOP_CENTER" spacing="5.0">
+            <VBox alignment="TOP_CENTER" minWidth="149.0" spacing="5.0">
                <children>
                   <Label text="%main.prod_list" textAlignment="CENTER" />
                   <TextField fx:id="searchField" promptText="%search_field" />
-                  <ListView fx:id="prodListView" prefWidth="125.0" />
+                  <ListView fx:id="prodListView" prefWidth="125.0" VBox.vgrow="ALWAYS" />
                   <HBox alignment="CENTER_RIGHT">
                      <children>
                         <Button fx:id="plusButton" contentDisplay="CENTER" mnemonicParsing="false">

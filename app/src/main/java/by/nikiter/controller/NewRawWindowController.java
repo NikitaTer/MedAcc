@@ -1,12 +1,11 @@
 package by.nikiter.controller;
 
 import by.nikiter.model.Repo;
-import by.nikiter.model.Unit;
+import by.nikiter.model.entity.Unit;
 import by.nikiter.model.entity.Raw;
 import by.nikiter.util.JsonFileUtil;
 import by.nikiter.util.PropManager;
 import by.nikiter.util.Regexp;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
