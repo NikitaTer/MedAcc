@@ -117,7 +117,7 @@ public class EditProductWindowController implements Initializable {
             }
         }
 
-        if (!prodQuantity.matches(Regexp.DECIMAL)) {
+        if (!prodQuantity.matches(Regexp.DOUBLE)) {
             errorLabel.setText(PropManager.getLabel("add_pd.error.wrong_format"));
             errorLabel.setVisible(true);
             quantityField.getStyleClass().add("error");
@@ -126,7 +126,7 @@ public class EditProductWindowController implements Initializable {
 
         product.setName(prodName);
         product.setUnit(unitBox.getValue());
-        product.setQuantity(Integer.parseInt(prodQuantity));
+        product.setQuantity(Double.parseDouble(prodQuantity));
         return true;
     }
 }

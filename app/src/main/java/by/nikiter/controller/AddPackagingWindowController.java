@@ -138,7 +138,7 @@ public class AddPackagingWindowController implements Initializable {
             return false;
         }
 
-        if (!productQuantity.matches(Regexp.DECIMAL)) {
+        if (!productQuantity.matches(Regexp.DOUBLE)) {
             errorLabel.setText(PropManager.getLabel("add_pack.error.product_quantity"));
             errorLabel.setVisible(true);
             productQuantityField.getStyleClass().add("error");
@@ -168,7 +168,7 @@ public class AddPackagingWindowController implements Initializable {
 
         PackagingUnit packaging = new PackagingUnit(
                 name,
-                Integer.parseInt(productQuantity),
+                Double.parseDouble(productQuantity),
                 unitBox.getValue(),
                 Double.parseDouble(addExpPiece),
                 Integer.parseInt(quantityInBox),

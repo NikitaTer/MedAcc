@@ -240,12 +240,12 @@ public class AddRawWindowController implements Initializable {
         String rawQuantity = quantityField.getText().trim();
 
         //Wrong format on quantity
-        if (!rawQuantity.matches(Regexp.DECIMAL)) {
+        if (!rawQuantity.matches(Regexp.DOUBLE)) {
             quantityField.getStyleClass().add("error");
             return false;
         }
 
-        Repo.getInstance().addRawToCurrent(raw,Integer.parseInt(rawQuantity));
+        Repo.getInstance().addRawToCurrent(raw,Double.parseDouble(rawQuantity));
         ControllersManager.getInstance().getMainWindowController().updateCurrentGrid(false);
         return true;
     }

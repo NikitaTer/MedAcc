@@ -157,7 +157,7 @@ public class MainWindowController implements Initializable {
         Label productNameLabel = new Label(product.getName());
         productNameLabel.setFont(Font.font(14));
         gridPane.setProductNameLabel(productNameLabel);
-        Label productQuantityLabel = new Label(Integer.toString(product.getQuantity()));
+        Label productQuantityLabel = new Label(Double.toString(product.getQuantity()));
         productQuantityLabel.setFont(Font.font(14));
         gridPane.setProductQuantityLabel(productQuantityLabel);
         Label productUnitLabel = new Label(product.getUnit().getNameShort());
@@ -190,7 +190,7 @@ public class MainWindowController implements Initializable {
             openAddRawWindow();
         });
 
-        TableView<Map.Entry<Raw, Integer>> rawTable = new TableView<>(FXCollections.observableArrayList(product.getRaws().entrySet()));
+        TableView<Map.Entry<Raw, Double>> rawTable = new TableView<>(FXCollections.observableArrayList(product.getRaws().entrySet()));
         productGrids.get(product).setRawTable(rawTable);
         rawTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         rawTable.setMinSize(rawTable.getPrefWidth(),rawTable.getPrefHeight());
@@ -199,7 +199,7 @@ public class MainWindowController implements Initializable {
         scrollPane.setFitToWidth(true);
 
         rawTable.setRowFactory(tv -> {
-            TableRow<Map.Entry<Raw,Integer>> row = new TableRow<>();
+            TableRow<Map.Entry<Raw,Double>> row = new TableRow<>();
 
             MenuItem edit = new MenuItem(PropManager.getLabel("main.table.raw.context_menu.edit"));
             edit.setOnAction(event -> {
@@ -222,20 +222,20 @@ public class MainWindowController implements Initializable {
             return row;
         });
 
-        TableColumn<Map.Entry<Raw,Integer>,String> nameColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.name"));
+        TableColumn<Map.Entry<Raw,Double>,String> nameColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.name"));
         nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getKey().getName()));
         rawTable.getColumns().add(nameColumn);
 
-        TableColumn<Map.Entry<Raw,Integer>,Double> costColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.cost"));
+        TableColumn<Map.Entry<Raw,Double>,Double> costColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.cost"));
         costColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getKey().getCost()).asObject());
         costColumn.setCellFactory(CellFormatter.getRawDoubleFormat());
         rawTable.getColumns().add(costColumn);
 
-        TableColumn<Map.Entry<Raw,Integer>,Integer> quantityColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.quantity"));
-        quantityColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getValue()).asObject());
+        TableColumn<Map.Entry<Raw,Double>,Double> quantityColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.quantity"));
+        quantityColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getValue()).asObject());
         rawTable.getColumns().add(quantityColumn);
 
-        TableColumn<Map.Entry<Raw,Integer>,Unit> unitColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.unit"));
+        TableColumn<Map.Entry<Raw,Double>,Unit> unitColumn = new TableColumn<>(PropManager.getLabel("main.table.raw.unit"));
         unitColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getKey().getUnit()));
         rawTable.getColumns().add(unitColumn);
 
@@ -323,10 +323,10 @@ public class MainWindowController implements Initializable {
 
         Label tableNameLabel = new Label(PropManager.getLabel("main.table.packaging.name"));
 
-        Label addRawLabel = new Label(PropManager.getLabel("main.table.packaging.add"));
-        addRawLabel.setAccessibleRole(AccessibleRole.BUTTON);
-        addRawLabel.setUnderline(true);
-        addRawLabel.setOnMouseClicked(event -> {
+        Label addPackagingWindow = new Label(PropManager.getLabel("main.table.packaging.add"));
+        addPackagingWindow.setAccessibleRole(AccessibleRole.BUTTON);
+        addPackagingWindow.setUnderline(true);
+        addPackagingWindow.setOnMouseClicked(event -> {
             openAddPackagingWindow();
         });
 
@@ -361,61 +361,71 @@ public class MainWindowController implements Initializable {
 
         //name column
         TableColumn<PackagingUnit, String> nameColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.name"));
+        nameColumn.setResizable(false);
         nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
         packagingTable.getColumns().add(nameColumn);
 
         //product quantity column
-        TableColumn<PackagingUnit, Integer> productQuantityColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.product_quantity"));
-        productQuantityColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getProductQuantity()).asObject());
+        TableColumn<PackagingUnit, Double> productQuantityColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.product_quantity"));
+        productQuantityColumn.setResizable(false);
+        productQuantityColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getProductQuantity()).asObject());
         packagingTable.getColumns().add(productQuantityColumn);
 
         //unit column
         TableColumn<PackagingUnit, Unit> unitColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.unit"));
+        unitColumn.setResizable(false);
         unitColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getUnit()));
         packagingTable.getColumns().add(unitColumn);
 
         //quantity in box column
         TableColumn<PackagingUnit, Integer> quantityInBoxColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.quantity_in_box"));
+        quantityInBoxColumn.setResizable(false);
         quantityInBoxColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getQuantityInBox()).asObject());
         packagingTable.getColumns().add(quantityInBoxColumn);
 
         //additional expenses by piece column
         TableColumn<PackagingUnit, Double> addExpPieceColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.add_exp_piece"));
+        addExpPieceColumn.setResizable(false);
         addExpPieceColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getAddExpPiece()).asObject());
         addExpPieceColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
         packagingTable.getColumns().add(addExpPieceColumn);
 
         //additional expenses by set column
         TableColumn<PackagingUnit, Double> addExpSetColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.add_exp_set"));
+        addExpSetColumn.setResizable(false);
         addExpSetColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getAddExpSet()).asObject());
         addExpSetColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
         packagingTable.getColumns().add(addExpSetColumn);
 
         //piece cost column
         TableColumn<PackagingUnit, Double> pieceCostColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.piece_cost"));
+        pieceCostColumn.setResizable(false);
         pieceCostColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getPieceCost()).asObject());
         pieceCostColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
         packagingTable.getColumns().add(pieceCostColumn);
 
         //set cost column
         TableColumn<PackagingUnit, Double> setCostColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.set_cost"));
+        setCostColumn.setResizable(false);
         setCostColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getSetCost()).asObject());
         setCostColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
         packagingTable.getColumns().add(setCostColumn);
 
         //piece price column
         TableColumn<PackagingUnit, Double> piecePriceColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.piece_price"));
+        piecePriceColumn.setResizable(false);
         piecePriceColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getPiecePrice()).asObject());
         piecePriceColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
         packagingTable.getColumns().add(piecePriceColumn);
 
         //set price column
         TableColumn<PackagingUnit, Double> setPriceColumn = new TableColumn<>(PropManager.getLabel("main.table.packaging.column.set_price"));
+        setPriceColumn.setResizable(false);
         setPriceColumn.setCellValueFactory(param -> new SimpleDoubleProperty(param.getValue().getSetPrice()).asObject());
         setPriceColumn.setCellFactory(CellFormatter.getPackagingDoubleFormat());
         packagingTable.getColumns().add(setPriceColumn);
 
-        return new VBox(5, new HBox(20, tableNameLabel,addRawLabel), scrollPane);
+        return new VBox(5, new HBox(20, tableNameLabel,addPackagingWindow), scrollPane);
     }
 
     private void showGrid(ProductGridPane gridPane) {
@@ -523,7 +533,7 @@ public class MainWindowController implements Initializable {
         addPackagingStage.getIcons().add(new Image("images/logo.png"));
 
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/view/addPackagingWindow.fxml"),
+                getClass().getResource("/view/AddPackagingWindow.fxml"),
                 ResourceBundle.getBundle("labels")
         );
 
@@ -569,7 +579,7 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    private void openEditRawWindow(Map.Entry<Raw,Integer> raw) {
+    private void openEditRawWindow(Map.Entry<Raw,Double> raw) {
         Stage editRawStage = new Stage();
         editRawStage.setTitle(PropManager.getLabel("edit_raw.title"));
         editRawStage.getIcons().add(new Image("images/logo.png"));
@@ -672,7 +682,7 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    private void deleteRawFromProduct(Product product, Map.Entry<Raw,Integer> raw) {
+    private void deleteRawFromProduct(Product product, Map.Entry<Raw,Double> raw) {
         if (product == null || raw == null) {
             return;
         }

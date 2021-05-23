@@ -169,7 +169,7 @@ public class EditPackagingWindowController implements Initializable {
             return false;
         }
 
-        if (!productQuantity.matches(Regexp.DECIMAL)) {
+        if (!productQuantity.matches(Regexp.DOUBLE)) {
             errorLabel.setText(PropManager.getLabel("add_pack.error.product_quantity"));
             errorLabel.setVisible(true);
             productQuantityField.getStyleClass().add("error");
@@ -212,7 +212,7 @@ public class EditPackagingWindowController implements Initializable {
         }
 
         packaging.setName(name);
-        packaging.setProductQuantity(Integer.parseInt(productQuantity));
+        packaging.setProductQuantity(Double.parseDouble(productQuantity));
         packaging.setQuantityInBox(Integer.parseInt(quantityInBox));
         packaging.setAddExpPiece(Double.parseDouble(addExpPiece));
         packaging.setAddExpSet(Double.parseDouble(addExpSet));

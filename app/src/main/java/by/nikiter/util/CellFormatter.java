@@ -11,8 +11,8 @@ import java.util.Map;
 
 public class CellFormatter {
 
-    public static Callback<TableColumn<Map.Entry<Raw,Integer>, Double>, TableCell<Map.Entry<Raw,Integer>, Double>> getRawDoubleFormat() {
-        return param -> new TableCell<Map.Entry<Raw,Integer>, Double>() {
+    public static Callback<TableColumn<Map.Entry<Raw,Double>, Double>, TableCell<Map.Entry<Raw,Double>, Double>> getRawDoubleFormat() {
+        return param -> new TableCell<Map.Entry<Raw,Double>, Double>() {
             @Override
             protected void updateItem(Double item, boolean empty) {
                 if (item != null) {

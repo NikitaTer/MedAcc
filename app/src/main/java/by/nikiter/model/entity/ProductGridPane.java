@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ProductGridPane extends GridPane {
 
-    private TableView<Map.Entry<Raw,Integer>> rawTable = null;
+    private TableView<Map.Entry<Raw,Double>> rawTable = null;
     private TableView<PackagingUnit> packagingTable = null;
 
     private Label productNameLabel = null;
@@ -22,11 +22,11 @@ public class ProductGridPane extends GridPane {
 
     private CheckBox profitPercentBox = null;
 
-    public TableView<Map.Entry<Raw,Integer>> getRawTable() {
+    public TableView<Map.Entry<Raw,Double>> getRawTable() {
         return rawTable;
     }
 
-    public void setRawTable(TableView<Map.Entry<Raw,Integer>> rawTable) {
+    public void setRawTable(TableView<Map.Entry<Raw,Double>> rawTable) {
         this.rawTable = rawTable;
     }
 

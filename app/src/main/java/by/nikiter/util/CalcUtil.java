@@ -10,7 +10,7 @@ public class CalcUtil {
 
     public static double calcRawsCost(Product product) {
         double rawsCost = 0.0;
-        for (Map.Entry<Raw, Integer> raw : product.getRaws().entrySet()) {
+        for (Map.Entry<Raw, Double> raw : product.getRaws().entrySet()) {
             rawsCost = rawsCost + (raw.getKey().getCost() * raw.getValue());
         }
         return rawsCost;
@@ -18,7 +18,7 @@ public class CalcUtil {
 
     public static double calcProductCost(Product product) {
         double rawsCost = 0.0;
-        for (Map.Entry<Raw, Integer> raw : product.getRaws().entrySet()) {
+        for (Map.Entry<Raw, Double> raw : product.getRaws().entrySet()) {
             rawsCost = rawsCost + (raw.getKey().getCost() * raw.getValue());
         }
         return rawsCost + product.getSalary();

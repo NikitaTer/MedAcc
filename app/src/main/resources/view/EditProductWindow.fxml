@@ -11,18 +11,18 @@
 
 <VBox alignment="CENTER" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="by.nikiter.controller.EditProductWindowController">
    <children>
-      <TextField fx:id="productNameField" prefWidth="200.0" promptText="%add_pd.prod_name" />
+      <TextField fx:id="productNameField" promptText="%add_pd.prod_name" />
       <HBox alignment="CENTER_RIGHT" spacing="5.0">
          <children>
-            <Label text="%add_pd.quantity" textAlignment="RIGHT" wrapText="true" />
-            <TextField fx:id="quantityField" prefWidth="60.0" />
+            <Label minHeight="-Infinity" minWidth="-Infinity" text="%add_pd.quantity" textAlignment="RIGHT" wrapText="true" />
+            <TextField fx:id="quantityField" maxWidth="80.0" minWidth="60.0" />
             <Separator prefWidth="15.0" visible="false" />
-            <Label text="%add_pd.unit" textAlignment="RIGHT" wrapText="true" />
-            <ComboBox fx:id="unitBox" />
+            <Label minHeight="-Infinity" minWidth="-Infinity" text="%add_pd.unit" textAlignment="RIGHT" wrapText="true" />
+            <ComboBox fx:id="unitBox" maxWidth="80.0" minWidth="60.0" />
          </children>
       </HBox>
       <Label fx:id="errorLabel" alignment="CENTER" contentDisplay="CENTER" textAlignment="CENTER" textFill="RED" visible="false" wrapText="true" />
-      <Button fx:id="editButton" mnemonicParsing="false" prefWidth="80.0" text="%add_prod.edit_button" />
+      <Button fx:id="editButton" mnemonicParsing="false" text="%add_prod.edit_button" />
    </children>
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

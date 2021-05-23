@@ -77,14 +77,14 @@ public class AddProductWindowController implements Initializable {
             }
         }
 
-        if (!prodQuantity.matches(Regexp.DECIMAL)) {
+        if (!prodQuantity.matches(Regexp.DOUBLE)) {
             errorLabel.setText(PropManager.getLabel("add_pd.error.wrong_format"));
             errorLabel.setVisible(true);
             quantityField.getStyleClass().add("error");
             return false;
         }
 
-        Product product = new Product(prodName, unitBox.getValue(), Integer.parseInt(prodQuantity));
+        Product product = new Product(prodName, unitBox.getValue(), Double.parseDouble(prodQuantity));
         Repo.getInstance().addProduct(product);
         return true;
     }

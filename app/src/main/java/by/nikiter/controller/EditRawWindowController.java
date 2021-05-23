@@ -17,7 +17,7 @@ import java.util.ResourceBundle;
 public class EditRawWindowController implements Initializable {
 
     private Stage stage;
-    private Map.Entry<Raw,Integer> raw;
+    private Map.Entry<Raw,Double> raw;
     private Product product;
 
     @FXML
@@ -46,10 +46,10 @@ public class EditRawWindowController implements Initializable {
         stage.setOnCloseRequest(event -> ControllersManager.getInstance().setEditRawWindowController(null));
     }
 
-    public void setProdRaw(Product product, Map.Entry<Raw,Integer> raw) {
+    public void setProdRaw(Product product, Map.Entry<Raw,Double> raw) {
         this.product = product;
         this.raw = raw;
-        quantityField.setText(Integer.toString(raw.getValue()));
+        quantityField.setText(Double.toString(raw.getValue()));
     }
 
     private boolean editRaw() {
@@ -57,12 +57,12 @@ public class EditRawWindowController implements Initializable {
 
         String rawQuantity = quantityField.getText().trim();
 
-        if (!rawQuantity.matches(Regexp.DECIMAL)) {
+        if (!rawQuantity.matches(Regexp.DOUBLE)) {
             quantityField.getStyleClass().add("error");
             return false;
         }
 
-        product.getRaws().replace(raw.getKey(),Integer.parseInt(quantityField.getText()));
+        product.getRaws().replace(raw.getKey(),Double.parseDouble(quantityField.getText()));
 
         return true;
     }

@@ -70,8 +70,8 @@ public class Repo {
         JsonFileUtil.saveAllRaws();
     }
 
-    public void addRawToCurrent(Raw raw, int cost) {
-        currentProduct.addRaw(raw, cost);
+    public void addRawToCurrent(Raw raw, double quantity) {
+        currentProduct.addRaw(raw, quantity);
         JsonFileUtil.saveAllProducts();
 
     }

@@ -37,8 +37,8 @@ public class JsonFileUtil {
                 new FileOutputStream(PRODUCT_RAW_FILE),StandardCharsets.UTF_8)
         )) {
             for (Product product : Repo.getInstance().getProducts()) {
-                Map<String,Integer> raws = new HashMap<>();
-                for (Map.Entry<Raw,Integer> raw : product.getRaws().entrySet())  {
+                Map<String,Double> raws = new HashMap<>();
+                for (Map.Entry<Raw,Double> raw : product.getRaws().entrySet())  {
                     raws.put(raw.getKey().getName(),raw.getValue());
                 }
                 writer.write(product.getName() + " : " + gson.toJson(raws));
@@ -99,14 +99,14 @@ public class JsonFileUtil {
                     rawJson = nameRaws[1];
                 }
 
-                Map<String, Integer> rawNameCost = gson.fromJson(
+                Map<String, Double> rawNameCost = gson.fromJson(
                         rawJson,
-                        new TypeToken<HashMap<String,Integer>>(){}.getType()
+                        new TypeToken<HashMap<String,Double>>(){}.getType()
                 );
 
-                Map<Raw, Integer> rawsCost = new HashMap<>();
+                Map<Raw, Double> rawsCost = new HashMap<>();
                 if (rawNameCost != null) {
-                    for (Map.Entry<String, Integer> rc : rawNameCost.entrySet()) {
+                    for (Map.Entry<String, Double> rc : rawNameCost.entrySet()) {
 
                         Raw raw = null;
                         for (Raw r : raws) {

@@ -5,19 +5,19 @@ import java.util.*;
 public class Product {
     private String name;
     private Unit unit;
-    private int quantity;
+    private double quantity;
     private double salary = 0.0;
 
     private List<PackagingUnit> packagingUnits = new ArrayList<>();
-    private transient Map<Raw, Integer> raws = new HashMap<>();
+    private transient Map<Raw, Double> raws = new HashMap<>();
 
-    public Product(String name, Unit unit, int quantity) {
+    public Product(String name, Unit unit, double quantity) {
         this.name = name;
         this.unit = unit;
         this.quantity = quantity;
     }
 
-    public void addRaw(Raw raw, int quantity) {
+    public void addRaw(Raw raw, double quantity) {
         raws.put(raw, quantity);
     }
 
@@ -49,19 +49,19 @@ public class Product {
         this.unit = unit;
     }
 
-    public int getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
 
-    public Map<Raw, Integer> getRaws() {
+    public Map<Raw, Double> getRaws() {
         return raws;
     }
 
-    public void setRaws(Map<Raw, Integer> raws) {
+    public void setRaws(Map<Raw, Double> raws) {
         this.raws = raws;
     }
 
@@ -103,24 +103,12 @@ public class Product {
         long temp;
         result = name != null ? name.hashCode() : 0;
         result = 31 * result + (unit != null ? unit.hashCode() : 0);
-        result = 31 * result + quantity;
-        temp = Double.doubleToLongBits(salary);
+        temp = Double.doubleToLongBits(quantity);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(salary);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (packagingUnits != null ? packagingUnits.hashCode() : 0);
         result = 31 * result + (raws != null ? raws.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Product{" +
-                "name='" + name + '\'' +
-                ", unit=" + unit +
-                ", quantity=" + quantity +
-                ", salary=" + salary +
-                ", packagingUnits=" + packagingUnits +
-                ", raws=" + raws +
-                '}';
     }
 }
